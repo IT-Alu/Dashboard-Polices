@@ -1,0 +1,23 @@
+{
+  "name": "controlseguros-supabase",
+  "version": "1.0.0",
+  "description": "Dashboard profesional de gestión de seguros con Supabase",
+  "main": "index.html",
+  "scripts": {
+    "build": "node scripts/generate-env.js",
+    "dev": "npm run build && npx serve public",
+    "start": "npx serve public",
+    "preview": "npm run build && npm run start"
+  },
+  "keywords": [
+    "dashboard",
+    "seguros",
+    "supabase",
+    "vercel",
+    "spa"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
+}

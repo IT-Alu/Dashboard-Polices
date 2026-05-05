@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "ControlSeguros AAA",
+  "public": true,
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/((?!js|css|images|fonts|.*\\..*)?.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

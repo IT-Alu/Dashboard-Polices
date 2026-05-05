@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ControlSeguros AAA — Dashboard Profesional</title>
+  
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* ============================================
+       ESTILOS BASE - Mismos que tu diseño original
+       ============================================ */
+    :root {
+      --font-ui: "Trebuchet MS", "Avenir Next", ui-rounded, "Segoe UI", sans-serif;
+      --font-display: Georgia, "Palatino Linotype", serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --header-height: 72px;
+      --content-width: 1540px;
+      --focus-width: 4px;
+      --purple: #b17aff;
+      --green: #45d45b;
+      --amber: #f3bf4a;
+      --blue: #4e86ff;
+      --coral: #ff6161;
+      --brown: #a5734b;
+      --lavender: #c998ff;
+      --purple-soft: #efe4ff;
+      --green-soft: #ddfbe2;
+      --amber-soft: #fff2cc;
+      --blue-soft: #dce9ff;
+      --coral-soft: #ffd9d9;
+      --brown-soft: #f5e4d7;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #060b14;
+      --bg-glow: radial-gradient(circle at top left, rgba(177,122,255,.22), transparent 26%), radial-gradient(circle at top right, rgba(69,212,91,.13), transparent 22%), radial-gradient(circle at bottom right, rgba(243,191,74,.12), transparent 30%);
+      --surface: #0e1623;
+      --surface-2: #121c2d;
+      --surface-3: #172235;
+      --line: #33455f;
+      --text: #f6f7fb;
+      --text-soft: #ffffff;
+      --text-muted: #d8dded;
+      --text-subtle: #a9b5cc;
+      --field-bg: rgba(255,255,255,.04);
+      --primary: #f6f7fb;
+      --primary-contrast: #101726;
+      --card-overlay: linear-gradient(135deg, rgba(255,255,255,.09), transparent 42%);
+      --shadow: 0 22px 44px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"] {
+      --bg: #9f9fa9;
+      --bg-glow: radial-gradient(circle at top left, rgba(177,122,255,.26), transparent 22%), radial-gradient(circle at top right, rgba(69,212,91,.19), transparent 18%), radial-gradient(circle at bottom right, rgba(243,191,74,.19), transparent 24%);
+      --surface: #faf6f1;
+      --surface-2: #ffffff;
+      --surface-3: #f2ebe4;
+      --line: #6c6577;
+      --text: #241f2b;
+      --text-soft: #151018;
+      --text-muted: #3e3746;
+      --text-subtle: #544c60;
+      --field-bg: rgba(255,255,255,.9);
+      --primary: #241f2b;
+      --primary-contrast: #f8f7fb;
+      --card-overlay: linear-gradient(135deg, rgba(177,122,255,.12), transparent 42%);
+      --shadow: 0 18px 34px rgba(33,28,46,.18);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: calc(var(--header-height) + 16px); }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg-glow), var(--bg); color: var(--text);
+      font-family: var(--font-ui); line-height: 1.55; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    button, input, select, textarea { font: inherit; }
+    .sr-only { position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0; }
+    .skip-link { position:absolute;top:10px;left:12px;z-index:999;transform:translateY(-200%);padding:12px 16px;border-radius:12px;background:var(--primary);color:var(--primary-contrast);font-weight:900;text-decoration:none; }
+    .skip-link:focus { transform: translateY(0); }
+    :focus-visible { outline: var(--focus-width) solid var(--purple); outline-offset: 3px; border-radius: 12px; }
+
+    /* ============================================
+       AUTH MODAL - Login/Registro
+       ============================================ */
+    .auth-modal-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(5,7,12,.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .auth-modal-backdrop.hidden { display: none; }
+    
+    .auth-modal {
+      width: min(480px, 100%);
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border-radius: 24px; border: 1px solid color-mix(in oklab, var(--line) 86%, transparent);
+      box-shadow: var(--shadow); padding: 24px;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .auth-modal-header {
+      text-align: center; margin-bottom: 24px;
+    }
+    .auth-modal-header h1 {
+      font-family: var(--font-display); font-size: 1.5rem;
+      color: var(--text-soft); margin: 0 0 8px;
+    }
+    .auth-modal-header p {
+      color: var(--text-subtle); font-size: 0.95rem; margin: 0;
+    }
+    
+    .auth-tabs {
+      display: flex; gap: 8px; margin-bottom: 24px;
+      background: var(--field-bg); border-radius: 14px;
+      padding: 4px;
+    }
+    .auth-tab {
+      flex: 1; padding: 12px; border: none; border-radius: 10px;
+      background: transparent; color: var(--text-subtle);
+      font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: #fff; box-shadow: 0 4px 12px rgba(177,122,255,.3);
+    }
+    .auth-tab:hover:not(.active) { color: var(--text-muted); }
+    
+    .auth-form { display: grid; gap: 16px; }
+    .auth-form.hidden { display: none; }
+    
+    .field-wrap { display: grid; gap: 8px; }
+    .field-wrap label {
+      color: var(--text-soft); font-weight: 700; font-size: 0.9rem;
+    }
+    .field-wrap small {
+      color: var(--text-subtle); font-size: 0.82rem;
+    }
+    
+    .auth-field {
+      width: 100%; min-height: 48px; padding: 12px 14px;
+      border-radius: 14px; border: 1px solid color-mix(in oklab, var(--line) 85%, transparent);
+      background: var(--field-bg); color: var(--text);
+      font-size: 1rem; transition: border-color 0.2s;
+    }
+    .auth-field:focus {
+      outline: none; border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(177,122,255,.15);
+    }
+    .auth-field[aria-invalid="true"] {
+      border-color: var(--coral);
+      box-shadow: 0 0 0 2px rgba(255,97,97,.15);
+    }
+    
+    .auth-submit {
+      width: 100%; min-height: 52px;
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: #fff; border: none; border-radius: 14px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: transform 0.2s, filter 0.2s;
+      margin-top: 8px;
+    }
+    .auth-submit:hover {
+      transform: translateY(-1px); filter: saturate(1.1);
+    }
+    .auth-submit:active { transform: translateY(0); }
+    .auth-submit:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none;
+    }
+    
+    .auth-error {
+      padding: 14px 16px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--coral-soft), #fff1f1);
+      color: #7b1414; font-size: 0.9rem; font-weight: 600;
+      display: none;
+    }
+    .auth-error.visible { display: block; }
+    
+    .auth-success {
+      padding: 14px 16px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--green-soft), #e8f5e9);
+      color: #166534; font-size: 0.9rem; font-weight: 600;
+      display: none;
+    }
+    .auth-success.visible { display: block; }
+    
+    .auth-loading {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .auth-loading::before {
+      content: ''; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================
+       SKELETON LOADING
+       ============================================ */
+    .skeleton {
+      animation: pulse 1.5s infinite;
+    }
+    .skeleton-line {
+      background: linear-gradient(90deg, 
+        var(--surface-2) 25%, 
+        var(--surface-3) 50%, 
+        var(--surface-2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px; margin-bottom: 8px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .loading .card-content { opacity: 0.3; pointer-events: none; }
+    .loading::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* ============================================
+       ESTILOS DEL DASHBOARD (tu diseño original)
+       ============================================ */
+    .app-header {
+      position: sticky; top: 0; z-index: 80; min-height: var(--header-height);
+      background: color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter: blur(18px);
+      border-bottom: 1px solid color-mix(in oklab, var(--line) 72%, transparent);
+    }
+    .header-inner {
+      width: min(var(--content-width), calc(100% - 24px)); margin: 0 auto; padding: 12px 0; display: grid; gap: 12px; grid-template-columns: 1fr; align-items: center;
+    }
+    .brand { display:flex;align-items:center;gap:12px; }
+    .brand-mark { width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;font-size:24px;box-shadow:0 10px 20px rgba(177,122,255,.25); }
+    .brand-title { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: var(--text-soft); }
+    .brand-sub { color: var(--text-subtle); font-size: .92rem; }
+
+    .page-nav, .top-actions, .toolbar, .nav-actions, .modal-actions, .actions-cell { display:flex;flex-wrap:wrap;gap:10px;align-items:center; }
+    .page-nav .btn, .top-actions > * { flex: 1 1 140px; }
+
+    .container { width: min(var(--content-width), calc(100% - 24px)); margin:0 auto; padding:20px 0 72px; }
+    .page { display:none; animation:fadeIn .2s ease-out; }
+    .page.active { display:block; }
+    @keyframes fadeIn { from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);} }
+
+    h1,h2,h3,h4 { margin:0 0 12px; font-family:var(--font-display); line-height:1.12; letter-spacing:-.03em; color:var(--text-soft); }
+    h1 { font-size: clamp(1.9rem, 7vw, 2.7rem); }
+    h2 { font-size: clamp(1.45rem, 5vw, 1.9rem); }
+    h3 { font-size: 1.08rem; }
+    p { margin:0 0 12px; color:var(--text-muted); }
+    .eyebrow { display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;padding:6px 12px;border-radius:999px;background:color-mix(in oklab,var(--surface-3) 84%,transparent);border:1px solid color-mix(in oklab,var(--line) 78%,transparent);color:var(--text-subtle);font-weight:800; }
+    .page-head { display:flex;flex-direction:column;gap:16px;margin-bottom:22px; }
+    .help-text,.muted,.field-note { color:var(--text-subtle); font-size:.94rem; }
+
+    .btn,.field,.icon-btn,.dropzone {
+      min-height:48px;border-radius:14px;border:1px solid color-mix(in oklab,var(--line) 85%,transparent);background:var(--field-bg);color:var(--text);
+      transition:transform .18s ease, filter .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .btn { padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;font-weight:900;box-shadow:0 8px 16px rgba(0,0,0,.08); }
+    .btn:hover,.icon-btn:hover,.dropzone:hover { transform:translateY(-1px); filter:saturate(1.06); }
+    .btn[data-variant="primary"], .page-nav button[aria-current="page"] { background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;border-color:transparent; }
+    .btn[data-variant="success"] { background:linear-gradient(135deg,var(--green),#1dbc60);color:#08220c;border-color:transparent; }
+    .btn[data-variant="danger"] { background:linear-gradient(135deg,var(--coral),#ff7f7f);color:#fff;border-color:transparent; }
+    .btn[data-variant="warning"] { background:linear-gradient(135deg,var(--amber),#f5a623);color:#472f02;border-color:transparent; }
+    .btn[data-variant="ghost"] { background:transparent;box-shadow:none; }
+    .icon-btn { width:48px;display:grid;place-items:center;cursor:pointer; }
+    .field { width:100%;padding:10px 12px; }
+    .field[aria-invalid="true"] { border-color:var(--coral);box-shadow:0 0 0 2px rgba(255,97,97,.18); }
+    .inline-field { flex:1 1 220px; min-width:180px; }
+
+    .grid { display:grid; gap:16px; }
+    .kpi-grid { display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; }
+    .layout-2, .layout-2-equal { display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:24px; }
+
+    .card {
+      position:relative;overflow:hidden;padding:18px;border-radius:var(--radius-md);
+      background:linear-gradient(180deg,var(--surface) 0%, var(--surface-2) 100%);
+      border:1px solid color-mix(in oklab,var(--line) 85%,transparent);box-shadow:var(--shadow);
+    }
+    .card::after { content:"";position:absolute;inset:0;pointer-events:none;background:var(--card-overlay);opacity:.85; }
+    .card > * { position:relative; z-index:1; }
+    .card-header { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+    .card-title { font-size:1.18rem; }
+
+    .kpi-card { min-height:148px; display:grid; gap:10px; align-content:start; }
+    .kpi-card::before { content:"";position:absolute;top:0;left:0;bottom:0;width:8px;border-radius:0 999px 999px 0;background:var(--accent,var(--purple)); }
+    .kpi-icon { position:absolute;top:16px;right:16px;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:color-mix(in oklab,var(--accent,var(--purple)) 18%,transparent);color:var(--accent,var(--purple));font-size:20px; }
+    .kpi-label { padding-left:12px;text-transform:uppercase;letter-spacing:.08em;font-size:.76rem;font-weight:900;color:var(--text-subtle); }
+    .kpi-value {
+      padding-left:12px;font-family:var(--font-mono);font-weight:900;
+      font-size: clamp(1.35rem, 8vw, 2rem);
+      line-height:1.08;color:var(--accent,var(--purple));max-width:100%;
+      overflow-wrap:anywhere;word-break:break-word;font-variant-numeric:tabular-nums lining-nums;
+    }
+    .kpi-foot { padding-left:12px;font-size:.86rem;color:var(--text-muted); }
+
+    .status-panel { display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 16px;border-radius:18px;border:1px solid color-mix(in oklab,var(--line) 82%,transparent);background:linear-gradient(90deg,var(--surface-2),var(--surface-3));box-shadow:var(--shadow); }
+    .status-panel[data-tone="warning"] { background:linear-gradient(90deg,color-mix(in oklab,var(--amber-soft) 55%,var(--surface-2)),var(--surface-2)); }
+
+    .chart-shell { display:grid; gap:16px; }
+    .chart-viewport { border:1px solid color-mix(in oklab,var(--line) 82%,transparent); border-radius:20px; padding:16px; background:radial-gradient(circle at top right, rgba(255,255,255,.12), transparent 34%), color-mix(in oklab,var(--surface-2) 92%,transparent); }
+    .bar-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:end; min-height:280px; }
+    .bar-card { display:grid; grid-template-rows:auto 1fr auto auto; gap:10px; padding:12px; border-radius:18px; background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 92%,transparent), color-mix(in oklab,var(--surface-2) 88%,transparent)); border:1px solid color-mix(in oklab,var(--line) 84%,transparent); }
+    .bar-btn { width:100%; min-height:48px; border:0; cursor:pointer; border-radius:14px 14px 6px 6px; background:linear-gradient(180deg,var(--accent-color,var(--purple)), color-mix(in oklab,var(--accent-color,var(--purple)) 72%,black)); box-shadow:inset 0 0 0 2px rgba(255,255,255,.18), 0 10px 18px rgba(0,0,0,.16); }
+    .bar-value,.bar-percent { font-size:.9rem;color:var(--text-muted);font-family:var(--font-mono);font-variant-numeric:tabular-nums; }
+    .bar-label { font-size:.95rem;font-weight:900;color:var(--text-soft);word-break:break-word; }
+
+    .summary-list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+    .summary-list li { display:flex; flex-direction:column; gap:8px; padding:14px 16px; border-radius:16px; background:color-mix(in oklab,var(--surface-2) 88%,transparent); border:1px solid color-mix(in oklab,var(--line) 84%,transparent); }
+    .renewal-item { display:grid; grid-template-columns:auto 1fr; gap:12px; padding:14px; border-radius:18px; background:color-mix(in oklab,var(--surface-2) 88%,transparent); border:1px solid color-mix(in oklab,var(--line) 84%,transparent); }
+    .renewal-item .mono { grid-column:2; }
+    .days-chip { min-width:72px;width:fit-content;padding:10px 12px;border-radius:999px;text-align:center;font-family:var(--font-mono);font-weight:900;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--amber-soft),var(--amber));color:#523100;border:1px solid rgba(0,0,0,.08); }
+    .empty-state { padding:28px 16px;border-radius:18px;text-align:center;color:var(--text-subtle);border:1px dashed color-mix(in oklab,var(--line) 82%,transparent);background:color-mix(in oklab,var(--surface-2) 88%,transparent); }
+
+    .table-wrap { overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:18px;border:1px solid color-mix(in oklab,var(--line) 82%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+    table { width:100%; min-width:980px; border-collapse:collapse; background:transparent; }
+    caption { padding:14px 16px;text-align:left;color:var(--text-soft);font-family:var(--font-display); }
+    th,td { padding:12px 12px;border-bottom:1px solid color-mix(in oklab,var(--line) 72%,transparent);text-align:left;vertical-align:top;font-size:.84rem; }
+    thead th { position:sticky;top:0;z-index:2;background:linear-gradient(180deg,color-mix(in oklab,var(--surface-3) 94%,transparent), color-mix(in oklab,var(--surface-2) 96%,transparent));color:var(--text-soft);font-size:.84rem; }
+    tbody tr:nth-child(odd) { background:color-mix(in oklab,var(--surface) 78%,transparent); }
+    tbody tr:nth-child(even) { background:color-mix(in oklab,var(--surface-2) 88%,transparent); }
+    tbody tr:hover { background:color-mix(in oklab,var(--purple-soft) 42%,var(--surface-2)); }
+    .mono { font-family:var(--font-mono); font-variant-numeric:tabular-nums lining-nums; }
+
+    .badge { display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:4px 10px;border-radius:999px;font-size:.82rem;font-weight:900;white-space:nowrap;border:1px solid transparent; }
+    .status-active { background:linear-gradient(135deg,var(--green-soft),#d6ffde);color:#10531d;border-color:rgba(16,83,29,.18); }
+    .status-expired { background:linear-gradient(135deg,var(--coral-soft),#ffe3e3);color:#8c1111;border-color:rgba(140,17,17,.15); }
+    .status-cancelled { background:linear-gradient(135deg,#f1f2f5,#e3e6eb);color:#5d6572;border-style:dashed;border-color:#a2a9b3; }
+    .status-warning { background:linear-gradient(135deg,var(--amber-soft),#fff6dd);color:#7a5100;border-color:rgba(122,81,0,.15); }
+    .chip-info { background:linear-gradient(135deg,var(--blue-soft),#edf4ff);color:#1648aa;border-color:rgba(22,72,170,.18); }
+    .chip-purple { background:linear-gradient(135deg,var(--purple-soft),#f6efff);color:#6d28d9;border-color:rgba(109,40,217,.16); }
+
+    .logo-tile { width:56px;height:56px;border-radius:18px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#fff,#f3f0ec);border:1px solid rgba(0,0,0,.08);box-shadow:0 8px 16px rgba(0,0,0,.08);display:grid;place-items:center; }
+    .logo-tile img { width:100%;height:100%;object-fit:contain;padding:8px;background:#fff; }
+    .logo-fallback { font-family:var(--font-display);font-size:1rem;font-weight:900;color:#2a2232; }
+    .company-cell { display:flex;align-items:center;gap:12px; }
+    .company-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:linear-gradient(135deg,var(--blue-soft),var(--purple-soft));color:#243b64;font-size:.8rem;font-weight:800; }
+
+    .policies-card { background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 86%,transparent), color-mix(in oklab,var(--blue-soft) 10%,var(--surface-2))); }
+    .policy-toolbar { background:linear-gradient(135deg,color-mix(in oklab,var(--purple-soft) 26%,var(--surface)), color-mix(in oklab,var(--amber-soft) 18%,var(--surface-2))); }
+    .action-view { background:linear-gradient(135deg,var(--blue-soft),#eff5ff);color:#123f96; }
+    .action-edit { background:linear-gradient(135deg,var(--purple-soft),#faf4ff);color:#6a2ed4; }
+    .action-delete { background:linear-gradient(135deg,var(--coral-soft),#fff2f2);color:#9c1717; }
+
+    .form-grid { display:grid; grid-template-columns:1fr; gap:16px; }
+    .field-wrap { display:grid; gap:8px; }
+    .field-wrap.full { grid-column:1 / -1; }
+    label { color:var(--text-soft); font-weight:900; font-size:.95rem; }
+
+    .dropzone { min-height:148px;padding:18px;text-align:center;cursor:pointer;display:grid;gap:10px;place-items:center;border-style:dashed;background:linear-gradient(135deg,color-mix(in oklab,var(--purple-soft) 42%,var(--field-bg)), color-mix(in oklab,var(--blue-soft) 38%,var(--field-bg))); }
+    .dropzone[data-over="true"] { filter:saturate(1.12); }
+    .logo-preview { display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px; }
+
+    .modal-backdrop { position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(5,7,12,.72);backdrop-filter:blur(8px); }
+    .modal-backdrop.open { display:flex; }
+    .modal { width:min(980px,100%);max-height:92vh;overflow:auto;padding:20px;background:linear-gradient(180deg,var(--surface),var(--surface-2));border-radius:24px;border:1px solid color-mix(in oklab,var(--line) 86%,transparent);box-shadow:var(--shadow); }
+    .modal-head { position:sticky;top:-20px;z-index:3;display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:16px;padding:8px 0 14px;background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 92%,transparent), color-mix(in oklab,var(--surface-2) 92%,transparent)); }
+    .error-summary { margin-bottom:16px;padding:14px 16px;border-radius:18px;background:linear-gradient(135deg,var(--coral-soft),#fff1f1);color:#7b1414;border:1px solid rgba(123,20,20,.16); }
+    .error-summary ul { margin:8px 0 0 18px; }
+
+    .pagination { display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px; }
+    .live-region { position:fixed;right:12px;bottom:12px;width:min(380px,calc(100% - 24px));z-index:120;display:grid;gap:10px; }
+    .toast { padding:14px 16px;border-radius:18px;font-weight:800;background:linear-gradient(135deg,var(--surface),var(--surface-2));color:var(--text);border:1px solid color-mix(in oklab,var(--line) 86%,transparent);box-shadow:var(--shadow); }
+    .toast[data-tone="success"] { background:linear-gradient(135deg,color-mix(in oklab,var(--green-soft) 62%,var(--surface-2)),var(--surface-2)); }
+    .toast[data-tone="error"] { background:linear-gradient(135deg,color-mix(in oklab,var(--coral-soft) 62%,var(--surface-2)),var(--surface-2)); }
+    .toast[data-tone="info"] { background:linear-gradient(135deg,color-mix(in oklab,var(--blue-soft) 62%,var(--surface-2)),var(--surface-2)); }
+
+    details { padding:14px 16px;border-radius:18px;background:color-mix(in oklab,var(--surface-2) 92%,transparent);border:1px solid color-mix(in oklab,var(--line) 84%,transparent); }
+    summary { cursor:pointer;color:var(--text-soft);font-family:var(--font-display);font-size:1.04rem; }
+
+    .calendar-shell { background:linear-gradient(180deg,#fffefd,#fff8f4);color:#231f20;border-color:#dad0cf;box-shadow:0 24px 48px rgba(38,29,28,.14); }
+    .calendar-shell::after { background:linear-gradient(135deg,rgba(177,122,255,.12), rgba(243,191,74,.06) 30%, transparent 54%); }
+    .calendar-shell .card-title,.calendar-shell .help-text,.calendar-shell .muted,.calendar-shell p,.calendar-shell h1,.calendar-shell h2,.calendar-shell h3 { color:#2a2327; }
+    .calendar-white-toolbar .field { background:#fffaf7;color:#2b2428;border-color:#cfc2bf; }
+    .calendar-legend { display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;margin-bottom:16px; }
+    .calendar-legend-item { display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:800;color:#3b3136; }
+    .calendar-legend-swatch { width:18px;height:18px;border-radius:6px;border:1.5px solid rgba(0,0,0,.12);flex-shrink:0; }
+    .calendar-table-wrap { overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #dbd3d2;border-radius:22px;background:#fffefd; }
+    .calendar-table { width:100%;min-width:1080px;border-collapse:separate;border-spacing:0;background:#fffefd;color:#30272b; }
+    .calendar-table th,.calendar-table td { padding:10px;border-bottom:1px solid #f1e8e6;vertical-align:middle; }
+    .calendar-table thead th { position:sticky;z-index:3;color:#2d2528;font-size:.88rem;font-family:var(--font-display); }
+    .calendar-table .policy-col { min-width:250px;width:250px;position:sticky;left:0;z-index:4;background:#fffefd;border-right:2px solid #efe3e1; }
+    .calendar-table thead .policy-col { top:0;z-index:6;background:#fff6f2; }
+    .calendar-quarter-row th { top:0;text-align:center;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:12px 10px; }
+    .calendar-month-row th { top:47px;text-align:center;font-weight:800;padding:10px 8px; }
+    .cal-th-q1 { background:#f6efff !important;color:#6d28d9 !important;border-bottom:2px solid #d7b8ff !important; }
+    .cal-th-q2 { background:#edf4ff !important;color:#1d4ed8 !important;border-bottom:2px solid #9ec4ff !important; }
+    .cal-th-q3 { background:#fff2e1 !important;color:#c26213 !important;border-bottom:2px solid #ffc885 !important; }
+    .cal-th-q4 { background:#f7eadf !important;color:#8b5e34 !important;border-bottom:2px solid #d6b58d !important; }
+    .calendar-table tbody tr:hover td { background:#fff9f4; }
+    .calendar-table tbody tr:hover .policy-col { background:#fff4ef; }
+    .calendar-policy-meta { display:flex;align-items:center;gap:12px; }
+    .calendar-policy-name { font-family:var(--font-display);font-weight:900;color:#2b2327;margin-bottom:3px; }
+    .calendar-policy-sub { color:#6a5d64;font-size:.9rem; }
+    .calendar-month-btn,.calendar-month-empty { width:50px;min-height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:14px;font-weight:900;font-size:.84rem;letter-spacing:.02em; }
+    .calendar-month-btn { cursor:pointer;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(17,24,39,.06), 0 8px 14px rgba(0,0,0,.06); }
+    .calendar-month-empty { border:1.5px dashed #d9d1cf;color:#b7aeb0;background:#faf8f8; }
+    .cal-month-annual { background:linear-gradient(135deg,#dcfce7,#bdf5cb);color:#166534;border-color:#86efac; }
+    .cal-month-q1 { background:linear-gradient(135deg,#ede9fe,#dbc9ff);color:#6d28d9;border-color:#c4b5fd; }
+    .cal-month-q2 { background:linear-gradient(135deg,#dbeafe,#c5dcff);color:#1d4ed8;border-color:#93c5fd; }
+    .cal-month-q3 { background:linear-gradient(135deg,#ffedd5,#ffd8ab);color:#c2410c;border-color:#fdba74; }
+    .cal-month-q4 { background:linear-gradient(135deg,#fef3e2,#efd0b5);color:#8b5e34;border-color:#d6b58d; }
+    .cal-month-renewal { background:linear-gradient(135deg,#fef9c3,#ffe79c);color:#854d0e;border-color:#facc15; }
+    .cal-month-expired { background:linear-gradient(135deg,#fee2e2,#ffc7c7);color:#b91c1c;border-color:#fca5a5; }
+    .cal-month-cancelled { background:linear-gradient(135deg,#f3f4f6,#e3e7ec);color:#6b7280;border:2px dashed #9ca3af;box-shadow:none; }
+    .calendar-note { margin-top:10px;font-size:.9rem;color:#6c5d61; }
+
+    @media (min-width: 600px) {
+      .header-inner { grid-template-columns: auto 1fr; }
+      .brand { grid-column: 1 / -1; }
+      .page-head { flex-direction:row;align-items:end;justify-content:space-between; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .bar-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .renewal-item { grid-template-columns:auto 1fr auto; }
+      .renewal-item .mono { grid-column:auto; }
+      .summary-list li { flex-direction:row;justify-content:space-between;align-items:start; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      th,td { font-size:.88rem; }
+      .kpi-value { font-size: clamp(1.45rem, 5.2vw, 2rem); }
+    }
+
+    @media (min-width: 900px) {
+      .header-inner { grid-template-columns: auto 1fr auto; }
+      .brand { grid-column:auto; }
+      .page-nav .btn, .top-actions > * { flex: 0 1 auto; }
+      .layout-2 { grid-template-columns: minmax(0,2fr) minmax(320px,1fr); }
+      .layout-2-equal { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .card-header { flex-direction:row;align-items:start;justify-content:space-between; }
+      .kpi-value { font-size: clamp(1.55rem, 3vw, 2rem); }
+      .calendar-table { min-width:1180px; }
+      .calendar-table .policy-col { min-width:300px; width:300px; }
+      .calendar-month-btn, .calendar-month-empty { width:56px; }
+    }
+
+    @media (min-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(5, minmax(220px, 1fr)); }
+      .kpi-card { min-height:170px; }
+      .kpi-value { font-size: 1.9rem; }
+      th,td { font-size:.94rem; }
+      thead th { font-size:.9rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+  
+  <!-- ============================================
+       LOGIN MODAL - Autenticación
+       ============================================ -->
+  <div id="authModal" class="auth-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="auth-modal">
+      <div class="auth-modal-header">
+        <h1 id="authModalTitle">🛡️ ControlSeguros AAA</h1>
+        <p>Gestiona tus pólizas de forma segura</p>
+      </div>
+      
+      <!-- Pestañas Login/Registro -->
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" role="tab" aria-selected="true" data-tab="login" id="tabLogin">Iniciar Sesión</button>
+        <button class="auth-tab" role="tab" aria-selected="false" data-tab="register" id="tabRegister">Registrarse</button>
+      </div>
+      
+      <!-- Mensajes de error/éxito -->
+      <div id="authError" class="auth-error" role="alert" aria-live="assertive"></div>
+      <div id="authSuccess" class="auth-success" role="status" aria-live="polite"></div>
+      
+      <!-- Formulario Login -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="field-wrap">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" class="auth-field" required autocomplete="email" placeholder="tu@empresa.com" />
+        </div>
+        <div class="field-wrap">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" class="auth-field" required minlength="8" autocomplete="current-password" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="auth-submit" id="loginSubmit">
+          <span class="auth-submit-text">Entrar</span>
+        </button>
+      </form>
+      
+      <!-- Formulario Registro -->
+      <form id="registerForm" class="auth-form hidden" novalidate>
+        <div class="field-wrap">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" class="auth-field" required autocomplete="email" placeholder="tu@empresa.com" />
+        </div>
+        <div class="field-wrap">
+          <label for="registerPassword">Contraseña</label>
+          <input type="password" id="registerPassword" class="auth-field" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" />
+          <small>La contraseña debe tener al menos 8 caracteres</small>
+        </div>
+        <div class="field-wrap">
+          <label for="registerConfirm">Confirmar Contraseña</label>
+          <input type="password" id="registerConfirm" class="auth-field" required autocomplete="new-password" placeholder="Repite la contraseña" />
+        </div>
+        <button type="submit" class="auth-submit" id="registerSubmit">
+          <span class="auth-submit-text">Registrarse</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DASHBOARD PRINCIPAL (tu diseño original)
+       ============================================ -->
+  <div id="dashboardApp" style="display: none;">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand" aria-label="ControlSeguros AAA">
+          <div class="brand-mark" aria-hidden="true">🛡️</div>
+          <div>
+            <div class="brand-title">ControlSeguros AAA</div>
+            <div class="brand-sub">Dashboard Profesional con Supabase</div>
+          </div>
+        </div>
+        <nav class="page-nav" aria-label="Secciones principales">
+          <button class="btn" type="button" data-page-btn="dashboard" aria-current="page">Dashboard</button>
+          <button class="btn" type="button" data-page-btn="policies">Pólizas</button>
+          <button class="btn" type="button" data-page-btn="calendar">Calendario</button>
+          <button class="btn" type="button" data-page-btn="import">Importar / Exportar</button>
+        </nav>
+        <div class="top-actions">
+          <label for="yearSelect" class="sr-only">Año activo</label>
+          <select id="yearSelect" class="field"></select>
+          <button class="btn" type="button" id="themeToggle" aria-pressed="false">Modo claro</button>
+          <button class="btn" type="button" data-variant="primary" id="newPolicyBtn">+ Nueva póliza</button>
+          <button class="btn" type="button" id="logoutBtn" data-variant="danger">Salir</button>
+        </div>
+      </div>
+    </header>
+    
+    <main id="main-content" class="container">
+      <!-- Dashboard Page -->
+      <section id="page-dashboard" class="page active" aria-labelledby="dashboard-title">
+        <div class="page-head">
+          <div>
+            <span class="eyebrow">Dashboard visual</span>
+            <h1 id="dashboard-title">Dashboard con tipografía de KPI más pequeña</h1>
+            <p>Se ha reducido el tamaño de letra de las tarjetas del dashboard para que cifras como 33.000,00 € no se corten ni bajen líneas de forma brusca.</p>
+          </div>
+          <div class="nav-actions">
+            <button class="btn" type="button" id="dashboardRefreshBtn">Recalcular</button>
+            <button class="btn" type="button" data-page-jump="policies">Ir a pólizas</button>
+          </div>
+        </div>
+        <div id="renewalBanner" class="status-panel" data-tone="warning" hidden>
+          <strong>Atención:</strong>
+          <span id="renewalBannerText">Hay pólizas próximas a vencer.</span>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="layout-2">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Gasto por compañía</div>
+                <div class="help-text">Resumen gráfico con barras coloridas.</div>
+              </div>
+              <div class="nav-actions">
+                <button class="btn" type="button" id="toggleChartTableBtn" aria-expanded="false" aria-controls="chartDataTableWrap">Ver tabla de datos</button>
+              </div>
+            </div>
+            <section class="chart-shell" aria-labelledby="chartTitle">
+              <div class="sr-only" id="chartInstructions">Usa Tab para recorrer cada barra. Cada barra indica compañía, importe y porcentaje sobre el total anual.</div>
+              <h2 id="chartTitle" class="sr-only">Gasto por compañía</h2>
+              <p id="chartSummary" class="help-text"></p>
+              <figure class="chart-viewport" role="group" aria-describedby="chartSummary chartInstructions">
+                <div id="barChart" class="bar-grid"></div>
+              </figure>
+              <div id="chartDataTableWrap" hidden>
+                <div class="table-wrap">
+                  <table>
+                    <caption>Tabla equivalente del gasto por compañía</caption>
+                    <thead>
+                      <tr><th>Compañía</th><th>Importe</th><th>Porcentaje</th></tr>
+                    </thead>
+                    <tbody id="chartTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </article>
+          <article class="card" aria-labelledby="renewals-title">
+            <div class="card-header">
+              <div>
+                <div id="renewals-title" class="card-title">Próximas renovaciones</div>
+                <div class="help-text">Lista operativa, accesible y responsive.</div>
+              </div>
+            </div>
+            <div id="renewalsList" class="grid"></div>
+          </article>
+        </div>
+        <div class="layout-2-equal">
+          <article class="card" aria-labelledby="company-summary-title">
+            <div class="card-header"><div><div id="company-summary-title" class="card-title">Resumen por compañía</div><div class="help-text">Importe agregado, número de pólizas y peso sobre el año activo.</div></div></div>
+            <ul id="companySummaryList" class="summary-list"></ul>
+          </article>
+          <article class="card" aria-labelledby="top-policies-title">
+            <div class="card-header"><div><div id="top-policies-title" class="card-title">Top 5 pólizas por importe</div><div class="help-text">Listado claro con concepto y valor.</div></div></div>
+            <ul id="topPoliciesList" class="summary-list"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Policies Page -->
+      <section id="page-policies" class="page" aria-labelledby="policies-title">
+        <div class="page-head">
+          <div><span class="eyebrow">Pólizas</span><h1 id="policies-title">Base de datos mobile first y más visual</h1><p>Puedes crear, editar o eliminar pólizas. Los cambios se reflejan de forma inmediata en métricas y visualizaciones.</p></div>
+          <div class="nav-actions"><button class="btn" type="button" id="clearFiltersBtn">Limpiar filtros</button><button class="btn" type="button" data-variant="primary" id="newPolicyBtn2">+ Nueva póliza</button></div>
+        </div>
+        <div class="card policies-card policy-toolbar" style="margin-bottom:18px;">
+          <div class="toolbar">
+            <input class="field inline-field" type="search" id="searchInput" placeholder="Buscar por ID, compañía, concepto o nº de póliza" aria-label="Buscar pólizas" />
+            <select class="field inline-field" id="filterCompany" aria-label="Filtrar por compañía"></select>
+            <select class="field inline-field" id="filterStatus" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select>
+            <select class="field inline-field" id="filterFrequency" aria-label="Filtrar por frecuencia"></select>
+          </div>
+        </div>
+        <div class="card policies-card">
+          <div class="card-header"><div><div class="card-title">Registros</div><div id="resultsCount" class="help-text">0 registros</div></div></div>
+          <div class="table-wrap">
+            <table class="table-policies" aria-describedby="resultsCount">
+              <caption class="sr-only">Tabla de pólizas</caption>
+              <thead>
+                <tr>
+                  <th><button class="btn" type="button" data-sort="policy_id">ID</button></th>
+                  <th>Compañía</th>
+                  <th><button class="btn" type="button" data-sort="concept">Concepto</button></th>
+                  <th><button class="btn" type="button" data-sort="policy_number">Nº póliza</button></th>
+                  <th><button class="btn" type="button" data-sort="start_date">Inicio</button></th>
+                  <th><button class="btn" type="button" data-sort="end_date">Fin</button></th>
+                  <th>Frecuencia</th>
+                  <th><button class="btn" type="button" data-sort="amount">Importe</button></th>
+                  <th>Estado</th>
+                  <th>Días</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="policiesTableBody"></tbody>
+            </table>
+          </div>
+          <div id="policiesPagination" class="pagination"></div>
+        </div>
+      </section>
+
+      <!-- Calendar Page -->
+      <section id="page-calendar" class="page" aria-labelledby="calendar-title">
+        <div class="page-head">
+          <div><span class="eyebrow">Calendario</span><h1 id="calendar-title">Calendario cálido, con doble cabecera y scroll horizontal limpio</h1><p>En móvil mantiene usabilidad con desplazamiento horizontal suave. En desktop aprovecha todo el ancho.</p></div>
+        </div>
+        <div class="card calendar-shell">
+          <div class="toolbar calendar-white-toolbar">
+            <select class="field inline-field" id="calendarCompanyFilter" aria-label="Filtrar calendario por compañía"></select>
+            <select class="field inline-field" id="calendarStatusFilter" aria-label="Filtrar calendario por estado"><option value="">Todos los estados</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select>
+          </div>
+          <div class="calendar-legend" id="calendarLegendText">
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dcfce7;border-color:#86efac;"></span>Anual activa · Verde</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ede9fe;border-color:#c4b5fd;"></span>1T · Lila</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dbeafe;border-color:#93c5fd;"></span>2T · Azul</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ffedd5;border-color:#fdba74;"></span>3T · Naranja</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef3e2;border-color:#d6b58d;"></span>4T · Marrón</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef9c3;border-color:#facc15;"></span>Vence ≤60 días · Amarillo</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fee2e2;border-color:#fca5a5;"></span>Vencida · Rojo</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#f3f4f6;border:2px dashed #9ca3af;"></span>Anulada · Gris punteado</span>
+          </div>
+          <div class="calendar-table-wrap"><table class="calendar-table" aria-describedby="calendarLegendText"><caption class="sr-only">Calendario de coberturas por trimestres y meses</caption><thead id="calendarHead"></thead><tbody id="calendarList"></tbody></table></div>
+          <p class="calendar-note">Consejo: puedes pulsar sobre cualquier celda coloreada para abrir el detalle de la póliza.</p>
+        </div>
+      </section>
+
+      <!-- Import/Export Page -->
+      <section id="page-import" class="page" aria-labelledby="import-title">
+        <div class="page-head"><div><span class="eyebrow">Importar / Exportar</span><h1 id="import-title">Datos y mantenimiento</h1><p>Importa CSV, exporta datos o carga ejemplos. La importación soporta columnas estándar del sistema y conserva el logo por compañía cuando ya existe.</p></div></div>
+        <div class="layout-2-equal">
+          <article class="card">
+            <div class="card-header"><div><div class="card-title">Importar CSV</div><div class="help-text">Formatos admitidos: CSV con separador ; o ,</div></div></div>
+            <label class="dropzone" id="csvDropzone" for="csvInput"><strong>Arrastra un CSV aquí o haz clic para seleccionarlo</strong><span class="muted">Columnas: ID, CUENTA CONTABLE, COMPAÑÍA, MEDIADOR, CONCEPTO, Nº POLIZA, INICIO, FIN, FRECUENCIA PAGO, IMPORTE, AÑO, ESTADO</span></label>
+            <input id="csvInput" type="file" accept=".csv,.txt" class="sr-only" />
+            <div id="importFeedback" class="help-text" style="margin-top:12px;"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><div><div class="card-title">Exportar y utilidades</div><div class="help-text">Puedes exportar todos los datos o solo el año activo.</div></div></div>
+            <div class="grid">
+              <button class="btn" type="button" data-variant="success" id="exportAllBtn">Exportar todo a CSV</button>
+              <button class="btn" type="button" id="exportYearBtn">Exportar año activo</button>
+              <button class="btn" type="button" id="loadSampleBtn">Cargar datos de ejemplo</button>
+              <button class="btn" type="button" data-variant="danger" id="clearAllBtn">Borrar todos los datos</button>
+            </div>
+            <details style="margin-top:16px;"><summary>Formato CSV esperado</summary><p class="mono">ID;CUENTA CONTABLE;COMPAÑÍA;MEDIADOR;CONCEPTO;Nº POLIZA;INICIO;FIN;FRECUENCIA PAGO;IMPORTE;AÑO;ESTADO</p><p class="mono">POL-001;62500001;ALLIANZ;MARSH;Seguro Vida;1234567;01/01/2026;31/12/2026;ANUAL;12500,00;2026;ACTIVA</p></details>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- Policy Modal (CRUD) -->
+    <div class="modal-backdrop" id="policyModalBackdrop" data-modal-backdrop>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="policyModalTitle" aria-describedby="policyModalDesc" tabindex="-1">
+        <div class="modal-head"><div><h2 id="policyModalTitle">Nueva póliza</h2><p id="policyModalDesc" class="help-text">Todos los campos marcados como obligatorios deben completarse. El logo admite PNG, JPG y SVG.</p></div><button class="icon-btn" type="button" data-close-modal aria-label="Cerrar diálogo">✕</button></div>
+        <div id="formErrorSummary" hidden class="error-summary" role="alert" tabindex="-1"><strong>Revisa los siguientes campos:</strong><ul id="formErrorList"></ul></div>
+        <form id="policyForm" novalidate>
+          <div class="form-grid">
+            <div class="field-wrap"><label for="f_id">ID póliza *</label><input class="field" id="f_id" name="policy_id" required placeholder="POL-XXXX-XXXX o tu ID personalizado" /></div>
+            <div class="field-wrap"><label for="f_accountingAccount">Cuenta contable *</label><input class="field" id="f_accountingAccount" name="accounting_account" required /></div>
+            <div class="field-wrap"><label for="f_company">Compañía *</label><input class="field" id="f_company" name="company" list="companiesList" required /></div>
+            <div class="field-wrap"><label for="f_broker">Mediador</label><input class="field" id="f_broker" name="broker" list="brokersList" /></div>
+            <div class="field-wrap full"><label for="f_concept">Concepto / tipo de seguro *</label><input class="field" id="f_concept" name="concept" required /></div>
+            <div class="field-wrap"><label for="f_policyNumber">Nº póliza</label><input class="field" id="f_policyNumber" name="policy_number" /></div>
+            <div class="field-wrap"><label for="f_paymentFrequency">Frecuencia de pago</label><select class="field" id="f_paymentFrequency" name="payment_frequency"></select></div>
+            <div class="field-wrap"><label for="f_startDate">Fecha de inicio</label><input class="field" id="f_startDate" name="start_date" type="date" /></div>
+            <div class="field-wrap"><label for="f_endDate">Fecha de fin</label><input class="field" id="f_endDate" name="end_date" type="date" /></div>
+            <div class="field-wrap"><label for="f_amount">Importe (€) *</label><input class="field" id="f_amount" name="amount" inputmode="decimal" required /></div>
+            <div class="field-wrap"><label for="f_year">Año *</label><input class="field" id="f_year" name="year" type="number" min="2000" max="2100" required /></div>
+            <div class="field-wrap"><label for="f_status">Estado *</label><select class="field" id="f_status" name="status" required><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select></div>
+            <div class="field-wrap full"><label for="f_notes">Notas</label><textarea class="field" id="f_notes" name="notes" rows="3"></textarea></div>
+            <div class="field-wrap full">
+              <label for="f_logoInput">Logo de la compañía</label>
+              <div class="field-note">Formatos permitidos: PNG, JPG/JPEG y SVG. El sistema lo adapta automáticamente dentro de un contenedor con alto contraste para mantener legibilidad.</div>
+              <label class="dropzone" id="logoDropzone" for="f_logoInput"><strong>Arrastra el logo aquí o haz clic para cargarlo</strong><span class="muted">El logo se guarda por compañía y se reutiliza en todas sus pólizas.</span></label>
+              <input class="sr-only" id="f_logoInput" type="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" />
+              <div class="logo-preview" id="logoPreviewWrap" hidden><div id="logoPreviewTile" class="logo-tile" aria-hidden="true"></div><div><div id="logoPreviewName" class="muted"></div><div id="logoPreviewInfo" class="field-note"></div></div><button class="btn" type="button" id="removeLogoBtn">Quitar logo cargado</button></div>
+            </div>
+          </div>
+          <div class="modal-actions"><button class="btn" type="button" data-close-modal>Cancelar</button><button class="btn" type="submit" data-variant="primary" id="savePolicyBtn">Guardar póliza</button></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-backdrop" id="detailModalBackdrop" data-modal-backdrop>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle" tabindex="-1">
+        <div class="modal-head"><div><h2 id="detailModalTitle">Detalle de póliza</h2></div><button class="icon-btn" type="button" data-close-modal aria-label="Cerrar diálogo">✕</button></div>
+        <div id="detailModalBody"></div>
+      </div>
+    </div>
+
+    <div class="live-region" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+    <div id="statusAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <datalist id="companiesList"></datalist>
+    <datalist id="brokersList"></datalist>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/env.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/storage.js"></script>
+  <script src="/js/policies.js"></script>
+  <script src="/js/companies.js"></script>
+  <script src="/js/migration.js"></script>
+  <script src="/js/loading.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
