@@ -10,6 +10,38 @@
 const LOGO_EXTENSIONS = ['png', 'jpg', 'jpeg', 'svg'];
 
 /**
+ * Valida un archivo de logo
+ * @param {File} file - Archivo a validar
+ * @returns {object} { ok: boolean, message: string }
+ */
+function validateLogoFile(file) {
+  if (!file) {
+    return { ok: false, message: 'No se ha seleccionado ningún archivo' };
+  }
+
+  // Validar tamaño máximo: 200 KB
+  const maxSize = 200 * 1024; // 200 KB en bytes
+  if (file.size > maxSize) {
+    return { ok: false, message: 'El logo debe ser menor de 200 KB' };
+  }
+
+  // Validar MIME types permitidos
+  const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/svg+xml'];
+  if (!allowedMimeTypes.includes(file.type)) {
+    return { ok: false, message: 'Tipo de archivo no permitido. Solo PNG, JPG o SVG' };
+  }
+
+  // Validar extensión
+  const fileName = file.name.toLowerCase();
+  const hasValidExtension = LOGO_EXTENSIONS.some(ext => fileName.endsWith(`.${ext}`));
+  if (!hasValidExtension) {
+    return { ok: false, message: 'Extensión no permitida. Solo PNG, JPG o SVG' };
+  }
+
+  return { ok: true, message: 'Archivo válido' };
+}
+
+/**
  * Normaliza el nombre de compañía para usarlo como carpeta.
  * @param {string} companyName
  * @returns {string}
@@ -80,6 +112,50 @@ async function uploadCompanyLogo(companyName, file) {
 
   // Generar URL firmada
   return await getSignedLogoUrl(fileName);
+}
+
+/**
+ * Sube un logo para una compañía y devuelve la ruta estable + URL firmada.
+ * @param {string} companyName
+ * @param {File} file
+ * @returns {Promise<{path: string, signedUrl: string}>}
+ */
+async function uploadCompanyLogoWithPath(companyName, file) {
+  const validation = validateLogoFile(file);
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
+
+  const userId = getCurrentUserId();
+  if (!userId) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  const fileExt = file.name.split('.').pop().toLowerCase();
+  const folder = getCompanyLogoFolder(companyName);
+  const fileName = `${folder}/logo.${fileExt}`;
+
+  await removeExistingCompanyLogos(companyName);
+
+  const { error } = await supabaseClient.storage
+    .from(APP_CONFIG.STORAGE.LOGOS)
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  const signedUrl = await getSignedLogoUrl(fileName);
+  const cacheKey = getSafeCompanyName(companyName);
+  logoUrlCache.set(cacheKey, {
+    url: signedUrl,
+    expiresAt: Date.now() + (3600 - 60) * 1000
+  });
+
+  return { path: fileName, signedUrl };
 }
 
 /**
@@ -170,6 +246,7 @@ async function deleteCompanyLogo(logoUrl) {
 
 /**
  * Cache para URLs de logos
+ * @type {Map<string, {url: string, expiresAt: number}>}
  */
 const logoUrlCache = new Map();
 
@@ -218,21 +295,25 @@ async function findCompanyLogoPath(companyName) {
 async function getCompanyLogoUrl(companyName, existingUrl = null) {
   const cacheKey = getSafeCompanyName(companyName);
 
-  if (logoUrlCache.has(cacheKey)) {
-    return logoUrlCache.get(cacheKey);
+  const cachedEntry = logoUrlCache.get(cacheKey);
+  if (cachedEntry) {
+    if (Date.now() < cachedEntry.expiresAt) {
+      return cachedEntry.url;
+    }
+    logoUrlCache.delete(cacheKey);
   }
 
-  // Primero intenta reutilizar la URL existente si sigue viva
+  // Si hay existingUrl, verificar si sigue viva (solo una vez por sesión)
   if (existingUrl) {
     try {
       const response = await fetch(existingUrl, { method: 'HEAD' });
-
       if (response.ok) {
-        logoUrlCache.set(cacheKey, existingUrl);
+        const expiresAt = Date.now() + (3600 - 60) * 1000;
+        logoUrlCache.set(cacheKey, { url: existingUrl, expiresAt });
         return existingUrl;
       }
     } catch (error) {
-      // URL expirada o inaccesible, se regenerará
+      // URL expirada, continuar
     }
   }
 
@@ -242,19 +323,22 @@ async function getCompanyLogoUrl(companyName, existingUrl = null) {
   }
 
   const path = await findCompanyLogoPath(companyName);
-
   if (!path) {
     return null;
   }
 
   const signedUrl = await getSignedLogoUrl(path);
-  logoUrlCache.set(cacheKey, signedUrl);
+  logoUrlCache.set(cacheKey, {
+    url: signedUrl,
+    expiresAt: Date.now() + (3600 - 60) * 1000
+  });
 
   return signedUrl;
 }
 
 // Exportar funciones globales
 window.uploadCompanyLogo = uploadCompanyLogo;
+window.uploadCompanyLogoWithPath = uploadCompanyLogoWithPath;
 window.getSignedLogoUrl = getSignedLogoUrl;
 window.deleteCompanyLogo = deleteCompanyLogo;
 window.getCompanyLogoUrl = getCompanyLogoUrl;

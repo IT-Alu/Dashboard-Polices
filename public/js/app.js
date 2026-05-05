@@ -52,6 +52,7 @@ async function loadUserData() {
   try {
     // Cargar pólizas
     appState.policies = await fetchPolicies();
+    await resolvePolicyLogoUrls(appState.policies);
     
     // Cargar compañías
     const companies = await fetchCompanies();
@@ -66,6 +67,34 @@ async function loadUserData() {
     hideDashboardLoading();
     toast('Error cargando datos', 'error');
   }
+}
+
+async function resolvePolicyLogoUrls(policies) {
+  if (!Array.isArray(policies) || !policies.length) return;
+
+  const pathCache = new Map();
+  const promises = policies.map(async policy => {
+    const path = policy.company_logo_path;
+    if (!path) return;
+
+    if (pathCache.has(path)) {
+      policy.company_logo_url = pathCache.get(path);
+      return;
+    }
+
+    try {
+      console.log('[logo render] path', path);
+      const signedUrl = await getSignedLogoUrl(path);
+      console.log('[logo render] signedUrl', signedUrl);
+      policy.company_logo_url = signedUrl;
+      pathCache.set(path, signedUrl);
+    } catch (error) {
+      console.warn('[logo render] failed to get signed URL for policy', path, error);
+      policy.company_logo_url = null;
+    }
+  });
+
+  await Promise.all(promises);
 }
 
 /**
@@ -625,7 +654,7 @@ function bindEvents() {
 // Funciones auxiliares (modales, formularios, etc.)
 // ... (incluir las funciones de modal, formulario, import/export del código original adaptadas)
 
-function openPolicyModal(policyId = null, trigger = null) {
+async function openPolicyModal(policyId = null, trigger = null) {
   appState.modalTrigger = trigger || document.activeElement;
   appState.editingId = policyId;
   appState.transientLogo = null;
@@ -658,7 +687,16 @@ function openPolicyModal(policyId = null, trigger = null) {
       const field = document.getElementById(elementId);
       if (field) field.value = item[fieldName] ?? '';
     });
-    if (item.company_logo_url) {
+
+    if (item.company_logo_path) {
+      console.log('[logo edit] existing path', item.company_logo_path);
+      try {
+        const signedUrl = await getSignedLogoUrl(item.company_logo_path);
+        showLogoPreview({ dataUrl: signedUrl, fileName: 'logo guardado', mimeType: 'image/*' });
+      } catch (error) {
+        console.warn('[logo edit] failed to generate signed URL for existing path', item.company_logo_path, error);
+      }
+    } else if (item.company_logo_url) {
       showLogoPreview({ dataUrl: item.company_logo_url, fileName: 'logo guardado', mimeType: 'image/*' });
     }
   } else {
@@ -815,7 +853,24 @@ async function savePolicyFromForm(event) {
   const policy = collectFormData();
   const errors = validatePolicyData(policy);
   if (errors.length) { showFormErrors(errors); toast('Revisa los campos obligatorios del formulario.', 'error'); return; }
-  
+
+  const existingPolicy = appState.editingId ? appState.policies.find(p => p.id === appState.editingId) : null;
+  let companyLogoPath = existingPolicy?.company_logo_path || null;
+  let uploadResult = null;
+
+  console.log('[policy submit] logo file', appState.transientLogo?.file);
+
+  if (appState.transientLogo?.file) {
+    console.log('[policy submit] upload start', appState.transientLogo.file);
+    uploadResult = await uploadCompanyLogoWithPath(policy.company, appState.transientLogo.file);
+    console.log('[policy submit] upload result', uploadResult);
+    companyLogoPath = uploadResult?.path || companyLogoPath;
+  }
+
+  if (companyLogoPath) {
+    policy.company_logo_path = companyLogoPath;
+  }
+
   try {
     if (appState.editingId) {
       // Actualizar
@@ -841,7 +896,12 @@ async function handleLogoFile(file) {
   
   try {
     const dataUrl = await readFileAsDataURL(file);
-    appState.transientLogo = { dataUrl, fileName: file.name, mimeType: file.type || 'image/*' };
+    appState.transientLogo = {
+      file,
+      dataUrl,
+      fileName: file.name,
+      mimeType: file.type || 'image/*'
+    };
     showLogoPreview(appState.transientLogo);
     toast('Logo preparado para guardarse con la compañía.', 'success');
   } catch (error) {
