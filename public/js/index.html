@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="ca" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ControlSeguros AAA — Dashboard Profesional</title>
+  <title>ControlSeguros AAA — Gestió de pòlisses</title>
   
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -462,10 +462,262 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
     }
+
+
+    /* ============================================
+       AAA VISUAL + ACCESSIBILITY POLISH
+       Contrast, filters, table readability and Catalan UI refinements
+       ============================================ */
+    html[data-theme="dark"] {
+      --bg: #070b12;
+      --surface: #101827;
+      --surface-2: #141f31;
+      --surface-3: #1b2940;
+      --line: #3b4d68;
+      --line-strong: #5a6f8f;
+      --text: #eef3fb;
+      --text-soft: #ffffff;
+      --text-muted: #d4dceb;
+      --text-subtle: #b6c2d6;
+      --field-bg: rgba(255,255,255,.075);
+      --field-bg-hover: rgba(255,255,255,.11);
+      --shadow: 0 22px 44px rgba(0,0,0,.36);
+    }
+
+    html[data-theme="light"] {
+      --bg: #f3f0ea;
+      --bg-glow:
+        radial-gradient(circle at top left, rgba(177,122,255,.20), transparent 24%),
+        radial-gradient(circle at top right, rgba(69,212,91,.13), transparent 18%),
+        radial-gradient(circle at bottom right, rgba(243,191,74,.16), transparent 24%);
+      --surface: #fffaf4;
+      --surface-2: #ffffff;
+      --surface-3: #f0e9df;
+      --line: #d5cbbf;
+      --line-strong: #ab9d90;
+      --text: #28212c;
+      --text-soft: #17131d;
+      --text-muted: #4f4658;
+      --text-subtle: #6e6375;
+      --field-bg: rgba(255,255,255,.96);
+      --field-bg-hover: #ffffff;
+      --shadow: 0 18px 38px rgba(45,38,55,.13);
+    }
+
+    body { background-attachment: fixed; }
+    ::selection { background: color-mix(in oklab, var(--purple) 42%, transparent); color: #fff; }
+
+    .app-header {
+      background: color-mix(in oklab, var(--bg) 84%, transparent);
+      box-shadow: 0 1px 0 color-mix(in oklab, var(--line) 70%, transparent);
+    }
+
+    .card, .table-wrap, details, .modal, .auth-modal {
+      border-color: color-mix(in oklab, var(--line) 72%, transparent);
+    }
+
+    .field,
+    .auth-field,
+    select,
+    input,
+    textarea {
+      background: var(--field-bg);
+      color: var(--text);
+      border-color: color-mix(in oklab, var(--line) 82%, transparent);
+    }
+
+    .field:hover,
+    .auth-field:hover,
+    select:hover,
+    input:hover,
+    textarea:hover {
+      background: var(--field-bg-hover);
+      border-color: color-mix(in oklab, var(--line-strong) 80%, transparent);
+    }
+
+    .field:focus,
+    .auth-field:focus,
+    select:focus,
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--purple) 26%, transparent);
+    }
+
+    ::placeholder { color: color-mix(in oklab, var(--text-subtle) 82%, transparent); }
+
+    .filters-toolbar {
+      align-items: end;
+      gap: 12px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 6px;
+      flex: 1 1 190px;
+      min-width: 180px;
+    }
+
+    .filter-field-wide { flex-basis: 300px; }
+
+    .filter-field label {
+      color: var(--text-soft);
+      font-size: .84rem;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .filter-field .field { min-width: 0; }
+
+    thead th {
+      background: linear-gradient(180deg,
+        color-mix(in oklab, var(--surface-3) 98%, transparent),
+        color-mix(in oklab, var(--surface-2) 98%, transparent));
+      color: var(--text-soft);
+    }
+
+    tbody tr:nth-child(odd) { background: color-mix(in oklab, var(--surface) 74%, transparent); }
+    tbody tr:nth-child(even) { background: color-mix(in oklab, var(--surface-2) 88%, transparent); }
+    tbody tr:hover { background: color-mix(in oklab, var(--purple) 13%, var(--surface-2)); }
+
+    .table-policies tbody td,
+    .table-policies tbody td .mono,
+    .table-policies tbody td:nth-child(10) {
+      color: var(--text-muted);
+    }
+
+    .table-policies tbody td:nth-child(10) {
+      font-family: var(--font-mono);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    html[data-theme="dark"] .table-policies tbody td:nth-child(10) {
+      color: #f8d978;
+      text-shadow: 0 1px 0 rgba(0,0,0,.25);
+    }
+
+    html[data-theme="dark"] .status-active {
+      background: rgba(69,212,91,.16);
+      color: #caffd4;
+      border-color: rgba(69,212,91,.36);
+    }
+
+    html[data-theme="dark"] .status-expired {
+      background: rgba(255,97,97,.16);
+      color: #ffd2d2;
+      border-color: rgba(255,97,97,.36);
+    }
+
+    html[data-theme="dark"] .status-cancelled {
+      background: rgba(148,163,184,.16);
+      color: #e1e7f0;
+      border-color: rgba(148,163,184,.40);
+    }
+
+    html[data-theme="dark"] .status-warning,
+    html[data-theme="dark"] .days-chip {
+      background: rgba(243,191,74,.18);
+      color: #ffe8a6;
+      border-color: rgba(243,191,74,.38);
+    }
+
+    html[data-theme="dark"] .chip-info,
+    html[data-theme="dark"] .company-pill {
+      background: rgba(78,134,255,.16);
+      color: #d5e3ff;
+      border: 1px solid rgba(78,134,255,.34);
+    }
+
+    html[data-theme="dark"] .chip-purple {
+      background: rgba(177,122,255,.17);
+      color: #ecd9ff;
+      border-color: rgba(177,122,255,.36);
+    }
+
+    html[data-theme="dark"] .action-view {
+      background: rgba(78,134,255,.16);
+      color: #d5e3ff;
+      border-color: rgba(78,134,255,.34);
+    }
+
+    html[data-theme="dark"] .action-edit {
+      background: rgba(177,122,255,.17);
+      color: #ecd9ff;
+      border-color: rgba(177,122,255,.36);
+    }
+
+    html[data-theme="dark"] .action-delete {
+      background: rgba(255,97,97,.16);
+      color: #ffd2d2;
+      border-color: rgba(255,97,97,.36);
+    }
+
+    .auth-error, .error-summary {
+      background: color-mix(in oklab, var(--coral) 18%, var(--surface-2));
+      color: var(--text-soft);
+      border: 1px solid color-mix(in oklab, var(--coral) 42%, transparent);
+    }
+
+    .auth-success {
+      background: color-mix(in oklab, var(--green) 18%, var(--surface-2));
+      color: var(--text-soft);
+      border: 1px solid color-mix(in oklab, var(--green) 42%, transparent);
+    }
+
+    html[data-theme="dark"] .calendar-shell {
+      background: radial-gradient(circle at top right, rgba(177,122,255,.12), transparent 32%), linear-gradient(180deg, #121a29, #162235);
+      color: var(--text);
+      border-color: color-mix(in oklab, var(--line) 78%, transparent);
+    }
+
+    html[data-theme="dark"] .calendar-shell .card-title,
+    html[data-theme="dark"] .calendar-shell .help-text,
+    html[data-theme="dark"] .calendar-shell .muted,
+    html[data-theme="dark"] .calendar-shell p,
+    html[data-theme="dark"] .calendar-shell h1,
+    html[data-theme="dark"] .calendar-shell h2,
+    html[data-theme="dark"] .calendar-shell h3,
+    html[data-theme="dark"] .calendar-legend-item,
+    html[data-theme="dark"] .calendar-policy-name {
+      color: var(--text-soft);
+    }
+
+    html[data-theme="dark"] .calendar-policy-sub,
+    html[data-theme="dark"] .calendar-note { color: var(--text-subtle); }
+
+    html[data-theme="dark"] .calendar-white-toolbar .field {
+      background: rgba(255,255,255,.075);
+      color: var(--text);
+      border-color: color-mix(in oklab, var(--line) 80%, transparent);
+    }
+
+    html[data-theme="dark"] .calendar-table-wrap,
+    html[data-theme="dark"] .calendar-table {
+      background: #101827;
+      color: var(--text);
+      border-color: color-mix(in oklab, var(--line) 76%, transparent);
+    }
+
+    html[data-theme="dark"] .calendar-table th,
+    html[data-theme="dark"] .calendar-table td { border-bottom-color: rgba(255,255,255,.09); }
+    html[data-theme="dark"] .calendar-table .policy-col { background: #101827; border-right-color: rgba(255,255,255,.12); }
+    html[data-theme="dark"] .calendar-table thead .policy-col { background: #162235; }
+    html[data-theme="dark"] .calendar-table tbody tr:hover td { background: rgba(177,122,255,.09); }
+    html[data-theme="dark"] .calendar-table tbody tr:hover .policy-col { background: #18243a; }
+    html[data-theme="dark"] .calendar-month-empty { background: rgba(255,255,255,.045); border-color: rgba(255,255,255,.18); color: var(--text-subtle); }
+
+    @media (max-width: 599px) {
+      .filter-field, .filter-field-wide { flex-basis: 100%; min-width: 100%; }
+      .card { padding: 15px; border-radius: 18px; }
+      .btn, .field, .icon-btn { min-height: 44px; }
+    }
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+  <a class="skip-link" href="#main-content">Saltar al contingut principal</a>
   
   <!-- ============================================
        LOGIN MODAL - Autenticación
@@ -474,12 +726,12 @@
     <div class="auth-modal">
       <div class="auth-modal-header">
         <h1 id="authModalTitle">🛡️ ControlSeguros AAA</h1>
-        <p>Gestiona tus pólizas de forma segura</p>
+        <p>Gestiona les pòlisses de forma segura</p>
       </div>
       
       <!-- Pestañas Login/Registro -->
       <div class="auth-tabs" role="tablist">
-        <button class="auth-tab active" role="tab" aria-selected="true" data-tab="login" id="tabLogin">Iniciar Sesión</button>
+        <button class="auth-tab active" role="tab" aria-selected="true" data-tab="login" id="tabLogin">Iniciar sessió</button>
       </div>
       
       <!-- Mensajes de error/éxito -->
@@ -489,11 +741,11 @@
       <!-- Formulario Login -->
       <form id="loginForm" class="auth-form" novalidate>
         <div class="field-wrap">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" class="auth-field" required autocomplete="email" placeholder="tu@empresa.com" />
+          <label for="loginEmail">Correu electrònic</label>
+          <input type="email" id="loginEmail" class="auth-field" required autocomplete="email" placeholder="usuari@empresa.com" />
         </div>
         <div class="field-wrap">
-          <label for="loginPassword">Contraseña</label>
+          <label for="loginPassword">Contrasenya</label>
           <input type="password" id="loginPassword" class="auth-field" required minlength="8" autocomplete="current-password" placeholder="••••••••" />
         </div>
         <button type="submit" class="auth-submit" id="loginSubmit">
@@ -513,58 +765,58 @@
           <div class="brand-mark" aria-hidden="true">🛡️</div>
           <div>
             <div class="brand-title">ControlSeguros AAA</div>
-            <div class="brand-sub">Dashboard Profesional con Supabase</div>
+            <div class="brand-sub">Gestió interna de pòlisses i renovacions</div>
           </div>
         </div>
         <nav class="page-nav" aria-label="Secciones principales">
-          <button class="btn" type="button" data-page-btn="dashboard" aria-current="page">Dashboard</button>
-          <button class="btn" type="button" data-page-btn="policies">Pólizas</button>
-          <button class="btn" type="button" data-page-btn="calendar">Calendario</button>
+          <button class="btn" type="button" data-page-btn="dashboard" aria-current="page">Resum</button>
+          <button class="btn" type="button" data-page-btn="policies">Pòlisses</button>
+          <button class="btn" type="button" data-page-btn="calendar">Calendari</button>
           <button class="btn" type="button" data-page-btn="import">Importar / Exportar</button>
         </nav>
         <div class="top-actions">
-          <label for="yearSelect" class="sr-only">Año activo</label>
+          <label for="yearSelect" class="sr-only">Any actiu</label>
           <select id="yearSelect" class="field"></select>
-          <button class="btn" type="button" id="themeToggle" aria-pressed="false">Modo claro</button>
-          <button class="btn" type="button" data-variant="primary" id="newPolicyBtn">+ Nueva póliza</button>
-          <button class="btn" type="button" id="logoutBtn" data-variant="danger">Salir</button>
+          <button class="btn" type="button" id="themeToggle" aria-pressed="false">Mode clar</button>
+          <button class="btn" type="button" data-variant="primary" id="newPolicyBtn">+ Nova pòlissa</button>
+          <button class="btn" type="button" id="logoutBtn" data-variant="danger">Sortir</button>
         </div>
       </div>
     </header>
     
     <main id="main-content" class="container">
-      <!-- Dashboard Page -->
+      <!-- Resum Page -->
       <section id="page-dashboard" class="page active" aria-labelledby="dashboard-title">
         <div class="page-head">
           <div>
-            <span class="eyebrow">Dashboard visual</span>
-            <h1 id="dashboard-title">Dashboard con tipografía de KPI más pequeña</h1>
-            <p>Se ha reducido el tamaño de letra de las tarjetas del dashboard para que cifras como 33.000,00 € no se corten ni bajen líneas de forma brusca.</p>
+            <span class="eyebrow">Resum executiu</span>
+            <h1 id="dashboard-title">Seguiment de pòlisses i renovacions</h1>
+            <p>Consulta l’estat de les pòlisses, la despesa anual, les renovacions properes i la distribució per companyia.</p>
           </div>
           <div class="nav-actions">
-            <button class="btn" type="button" id="dashboardRefreshBtn">Recalcular</button>
-            <button class="btn" type="button" data-page-jump="policies">Ir a pólizas</button>
+            <button class="btn" type="button" id="dashboardRefreshBtn">Actualitzar dades</button>
+            <button class="btn" type="button" data-page-jump="policies">Anar a pòlisses</button>
           </div>
         </div>
         <div id="renewalBanner" class="status-panel" data-tone="warning" hidden>
-          <strong>Atención:</strong>
-          <span id="renewalBannerText">Hay pólizas próximas a vencer.</span>
+          <strong>Atenció:</strong>
+          <span id="renewalBannerText">Hi ha pòlisses properes al venciment.</span>
         </div>
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="layout-2">
           <article class="card">
             <div class="card-header">
               <div>
-                <div class="card-title">Gasto por compañía</div>
-                <div class="help-text">Resumen gráfico con barras coloridas.</div>
+                <div class="card-title">Despesa per companyia</div>
+                <div class="help-text">Distribució visual de la despesa per companyia.</div>
               </div>
               <div class="nav-actions">
-                <button class="btn" type="button" id="toggleChartTableBtn" aria-expanded="false" aria-controls="chartDataTableWrap">Ver tabla de datos</button>
+                <button class="btn" type="button" id="toggleChartTableBtn" aria-expanded="false" aria-controls="chartDataTableWrap">Veure taula de dades</button>
               </div>
             </div>
             <section class="chart-shell" aria-labelledby="chartTitle">
-              <div class="sr-only" id="chartInstructions">Usa Tab para recorrer cada barra. Cada barra indica compañía, importe y porcentaje sobre el total anual.</div>
-              <h2 id="chartTitle" class="sr-only">Gasto por compañía</h2>
+              <div class="sr-only" id="chartInstructions">Utilitza Tab per recórrer cada barra. Cada barra indica companyia, import i percentatge sobre el total anual.</div>
+              <h2 id="chartTitle" class="sr-only">Despesa per companyia</h2>
               <p id="chartSummary" class="help-text"></p>
               <figure class="chart-viewport" role="group" aria-describedby="chartSummary chartInstructions">
                 <div id="barChart" class="bar-grid"></div>
@@ -572,9 +824,9 @@
               <div id="chartDataTableWrap" hidden>
                 <div class="table-wrap">
                   <table>
-                    <caption>Tabla equivalente del gasto por compañía</caption>
+                    <caption>Taula equivalent de la despesa per companyia</caption>
                     <thead>
-                      <tr><th>Compañía</th><th>Importe</th><th>Porcentaje</th></tr>
+                      <tr><th>Companyia</th><th>Import</th><th>Porcentaje</th></tr>
                     </thead>
                     <tbody id="chartTableBody"></tbody>
                   </table>
@@ -585,8 +837,8 @@
           <article class="card" aria-labelledby="renewals-title">
             <div class="card-header">
               <div>
-                <div id="renewals-title" class="card-title">Próximas renovaciones</div>
-                <div class="help-text">Lista operativa, accesible y responsive.</div>
+                <div id="renewals-title" class="card-title">Properes renovacions</div>
+                <div class="help-text">Llistat operatiu de venciments i renovacions.</div>
               </div>
             </div>
             <div id="renewalsList" class="grid"></div>
@@ -594,11 +846,11 @@
         </div>
         <div class="layout-2-equal">
           <article class="card" aria-labelledby="company-summary-title">
-            <div class="card-header"><div><div id="company-summary-title" class="card-title">Resumen por compañía</div><div class="help-text">Importe agregado, número de pólizas y peso sobre el año activo.</div></div></div>
+            <div class="card-header"><div><div id="company-summary-title" class="card-title">Resum per companyia</div><div class="help-text">Import agregat, nombre de pòlisses i pes sobre l’any actiu.</div></div></div>
             <ul id="companySummaryList" class="summary-list"></ul>
           </article>
           <article class="card" aria-labelledby="top-policies-title">
-            <div class="card-header"><div><div id="top-policies-title" class="card-title">Top 5 pólizas por importe</div><div class="help-text">Listado claro con concepto y valor.</div></div></div>
+            <div class="card-header"><div><div id="top-policies-title" class="card-title">Top 5 pòlisses per import</div><div class="help-text">Llistat amb concepte i import.</div></div></div>
             <ul id="topPoliciesList" class="summary-list"></ul>
           </article>
         </div>
@@ -607,35 +859,47 @@
       <!-- Policies Page -->
       <section id="page-policies" class="page" aria-labelledby="policies-title">
         <div class="page-head">
-          <div><span class="eyebrow">Pólizas</span><h1 id="policies-title">Base de datos mobile first y más visual</h1><p>Puedes crear, editar o eliminar pólizas. Los cambios se reflejan de forma inmediata en métricas y visualizaciones.</p></div>
-          <div class="nav-actions"><button class="btn" type="button" id="clearFiltersBtn">Limpiar filtros</button><button class="btn" type="button" data-variant="primary" id="newPolicyBtn2">+ Nueva póliza</button></div>
+          <div><span class="eyebrow">Pòlisses</span><h1 id="policies-title">Base de datos mobile first y más visual</h1><p>Puedes crear, editar o eliminar pólizas. Los cambios se reflejan de forma inmediata en métricas y visualizaciones.</p></div>
+          <div class="nav-actions"><button class="btn" type="button" id="clearFiltersBtn">Netejar filtres</button><button class="btn" type="button" data-variant="primary" id="newPolicyBtn2">+ Nova pòlissa</button></div>
         </div>
         <div class="card policies-card policy-toolbar" style="margin-bottom:18px;">
-          <div class="toolbar">
-            <input class="field inline-field" type="search" id="searchInput" placeholder="Buscar por ID, compañía, concepto o nº de póliza" aria-label="Buscar pólizas" />
-            <select class="field inline-field" id="filterCompany" aria-label="Filtrar por compañía"></select>
-            <select class="field inline-field" id="filterStatus" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select>
-            <select class="field inline-field" id="filterFrequency" aria-label="Filtrar por frecuencia"></select>
+          <div class="toolbar filters-toolbar" role="search" aria-label="Filtres de pòlisses">
+            <div class="filter-field filter-field-wide">
+              <label for="searchInput">Cerca</label>
+              <input class="field inline-field" type="search" id="searchInput" placeholder="ID, companyia, concepte o núm. de pòlissa" aria-label="Cercar pòlisses" />
+            </div>
+            <div class="filter-field">
+              <label for="filterCompany">Companyia</label>
+              <select class="field inline-field" id="filterCompany" aria-label="Filtrar per companyia"></select>
+            </div>
+            <div class="filter-field">
+              <label for="filterStatus">Estat</label>
+              <select class="field inline-field" id="filterStatus" aria-label="Filtrar per estat"><option value="">Tots els estats</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vençuda</option><option value="ANULADA">Anul·lada</option></select>
+            </div>
+            <div class="filter-field">
+              <label for="filterFrequency">Freqüència</label>
+              <select class="field inline-field" id="filterFrequency" aria-label="Filtrar per freqüència"></select>
+            </div>
           </div>
         </div>
         <div class="card policies-card">
-          <div class="card-header"><div><div class="card-title">Registros</div><div id="resultsCount" class="help-text">0 registros</div></div></div>
+          <div class="card-header"><div><div class="card-title">Registres</div><div id="resultsCount" class="help-text">0 registres</div></div></div>
           <div class="table-wrap">
             <table class="table-policies" aria-describedby="resultsCount">
-              <caption class="sr-only">Tabla de pólizas</caption>
+              <caption class="sr-only">Taula de pòlisses</caption>
               <thead>
                 <tr>
                   <th><button class="btn" type="button" data-sort="policy_id">ID</button></th>
-                  <th>Compañía</th>
-                  <th><button class="btn" type="button" data-sort="concept">Concepto</button></th>
-                  <th><button class="btn" type="button" data-sort="policy_number">Nº póliza</button></th>
-                  <th><button class="btn" type="button" data-sort="start_date">Inicio</button></th>
-                  <th><button class="btn" type="button" data-sort="end_date">Fin</button></th>
-                  <th>Frecuencia</th>
-                  <th><button class="btn" type="button" data-sort="amount">Importe</button></th>
-                  <th>Estado</th>
-                  <th>Días</th>
-                  <th>Acciones</th>
+                  <th>Companyia</th>
+                  <th><button class="btn" type="button" data-sort="concept">Concepte</button></th>
+                  <th><button class="btn" type="button" data-sort="policy_number">Núm. pòlissa</button></th>
+                  <th><button class="btn" type="button" data-sort="start_date">Inici</button></th>
+                  <th><button class="btn" type="button" data-sort="end_date">Fi</button></th>
+                  <th>Freqüència</th>
+                  <th><button class="btn" type="button" data-sort="amount">Import</button></th>
+                  <th>Estat</th>
+                  <th>Dies</th>
+                  <th>Accions</th>
                 </tr>
               </thead>
               <tbody id="policiesTableBody"></tbody>
@@ -648,47 +912,53 @@
       <!-- Calendar Page -->
       <section id="page-calendar" class="page" aria-labelledby="calendar-title">
         <div class="page-head">
-          <div><span class="eyebrow">Calendario</span><h1 id="calendar-title">Calendario cálido, con doble cabecera y scroll horizontal limpio</h1><p>En móvil mantiene usabilidad con desplazamiento horizontal suave. En desktop aprovecha todo el ancho.</p></div>
+          <div><span class="eyebrow">Calendari</span><h1 id="calendar-title">Calendari de renovacions</h1><p>Visualitza venciments, cobertures i renovacions per mes i trimestre, amb lectura clara en mòbil i escriptori.</p></div>
         </div>
         <div class="card calendar-shell">
-          <div class="toolbar calendar-white-toolbar">
-            <select class="field inline-field" id="calendarCompanyFilter" aria-label="Filtrar calendario por compañía"></select>
-            <select class="field inline-field" id="calendarStatusFilter" aria-label="Filtrar calendario por estado"><option value="">Todos los estados</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select>
+          <div class="toolbar filters-toolbar calendar-white-toolbar" role="search" aria-label="Filtres del calendari">
+            <div class="filter-field">
+              <label for="calendarCompanyFilter">Companyia</label>
+              <select class="field inline-field" id="calendarCompanyFilter" aria-label="Filtrar calendari per companyia"></select>
+            </div>
+            <div class="filter-field">
+              <label for="calendarStatusFilter">Estat</label>
+              <select class="field inline-field" id="calendarStatusFilter" aria-label="Filtrar calendari per estat"><option value="">Tots els estats</option><option value="ACTIVA">Activa</option><option value="VENCIDA">Vençuda</option><option value="ANULADA">Anul·lada</option></select>
+            </div>
           </div>
           <div class="calendar-legend" id="calendarLegendText">
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dcfce7;border-color:#86efac;"></span>Anual activa · Verde</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dcfce7;border-color:#86efac;"></span>Anual activa · Verd</span>
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ede9fe;border-color:#c4b5fd;"></span>1T · Lila</span>
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dbeafe;border-color:#93c5fd;"></span>2T · Azul</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ffedd5;border-color:#fdba74;"></span>3T · Naranja</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef3e2;border-color:#d6b58d;"></span>4T · Marrón</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ffedd5;border-color:#fdba74;"></span>3T · Taronja</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef3e2;border-color:#d6b58d;"></span>4T · Marró</span>
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef9c3;border-color:#facc15;"></span>Vence ≤60 días · Amarillo</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fee2e2;border-color:#fca5a5;"></span>Vencida · Rojo</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#f3f4f6;border:2px dashed #9ca3af;"></span>Anulada · Gris punteado</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fee2e2;border-color:#fca5a5;"></span>Vençuda · Rojo</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#f3f4f6;border:2px dashed #9ca3af;"></span>Anul·lada · Gris punteado</span>
           </div>
-          <div class="calendar-table-wrap"><table class="calendar-table" aria-describedby="calendarLegendText"><caption class="sr-only">Calendario de coberturas por trimestres y meses</caption><thead id="calendarHead"></thead><tbody id="calendarList"></tbody></table></div>
-          <p class="calendar-note">Consejo: puedes pulsar sobre cualquier celda coloreada para abrir el detalle de la póliza.</p>
+          <div class="calendar-table-wrap"><table class="calendar-table" aria-describedby="calendarLegendText"><caption class="sr-only">Calendari de cobertures per trimestres i mesos</caption><thead id="calendarHead"></thead><tbody id="calendarList"></tbody></table></div>
+          <p class="calendar-note">Consell: pots prémer qualsevol cel·la acolorida per obrir el detall de la pòlissa.</p>
         </div>
       </section>
 
       <!-- Import/Export Page -->
       <section id="page-import" class="page" aria-labelledby="import-title">
-        <div class="page-head"><div><span class="eyebrow">Importar / Exportar</span><h1 id="import-title">Datos y mantenimiento</h1><p>Importa CSV, exporta datos o carga ejemplos. La importación soporta columnas estándar del sistema y conserva el logo por compañía cuando ya existe.</p></div></div>
+        <div class="page-head"><div><span class="eyebrow">Importar / Exportar</span><h1 id="import-title">Dades i manteniment</h1><p>Importa i exporta dades en CSV. Els logos de companyia es mantenen quan ja existeixen al sistema.</p></div></div>
         <div class="layout-2-equal">
           <article class="card">
-            <div class="card-header"><div><div class="card-title">Importar CSV</div><div class="help-text">Formatos admitidos: CSV con separador ; o ,</div></div></div>
-            <label class="dropzone" id="csvDropzone" for="csvInput"><strong>Arrastra un CSV aquí o haz clic para seleccionarlo</strong><span class="muted">Columnas: ID, CUENTA CONTABLE, COMPAÑÍA, MEDIADOR, CONCEPTO, Nº POLIZA, INICIO, FIN, FRECUENCIA PAGO, IMPORTE, AÑO, ESTADO</span></label>
+            <div class="card-header"><div><div class="card-title">Importar CSV</div><div class="help-text">Formats admesos: CSV amb separador ; o ,</div></div></div>
+            <label class="dropzone" id="csvDropzone" for="csvInput"><strong>Arrossega un CSV aquí o fes clic per seleccionar-lo</strong><span class="muted">Columnas: ID, CUENTA CONTABLE, COMPAÑÍA, MEDIADOR, CONCEPTO, Nº POLIZA, INICIO, FIN, FRECUENCIA PAGO, IMPORTE, AÑO, ESTADO</span></label>
             <input id="csvInput" type="file" accept=".csv,.txt" class="sr-only" />
             <div id="importFeedback" class="help-text" style="margin-top:12px;"></div>
           </article>
           <article class="card">
-            <div class="card-header"><div><div class="card-title">Exportar y utilidades</div><div class="help-text">Puedes exportar todos los datos o solo el año activo.</div></div></div>
+            <div class="card-header"><div><div class="card-title">Exportació i utilitats</div><div class="help-text">Pots exportar totes les dades o només l’any actiu.</div></div></div>
             <div class="grid">
-              <button class="btn" type="button" data-variant="success" id="exportAllBtn">Exportar todo a CSV</button>
-              <button class="btn" type="button" id="exportYearBtn">Exportar año activo</button>
-              <button class="btn" type="button" id="loadSampleBtn">Cargar datos de ejemplo</button>
-              <button class="btn" type="button" data-variant="danger" id="clearAllBtn">Borrar todos los datos</button>
+              <button class="btn" type="button" data-variant="success" id="exportAllBtn">Exportar-ho tot a CSV</button>
+              <button class="btn" type="button" id="exportYearBtn">Exportar l’any actiu</button>
+              <button class="btn" type="button" id="loadSampleBtn">Carregar dades d’exemple</button>
+              <button class="btn" type="button" data-variant="danger" id="clearAllBtn">Esborrar totes les dades</button>
             </div>
-            <details style="margin-top:16px;"><summary>Formato CSV esperado</summary><p class="mono">ID;CUENTA CONTABLE;COMPAÑÍA;MEDIADOR;CONCEPTO;Nº POLIZA;INICIO;FIN;FRECUENCIA PAGO;IMPORTE;AÑO;ESTADO</p><p class="mono">POL-001;62500001;ALLIANZ;MARSH;Seguro Vida;1234567;01/01/2026;31/12/2026;ANUAL;12500,00;2026;ACTIVA</p></details>
+            <details style="margin-top:16px;"><summary>Format CSV esperat</summary><p class="mono">ID;CUENTA CONTABLE;COMPAÑÍA;MEDIADOR;CONCEPTO;Nº POLIZA;INICIO;FIN;FRECUENCIA PAGO;IMPORTE;AÑO;ESTADO</p><p class="mono">POL-001;62500001;ALLIANZ;MARSH;Seguro Vida;1234567;01/01/2026;31/12/2026;ANUAL;12500,00;2026;ACTIVA</p></details>
           </article>
         </div>
       </section>
@@ -697,32 +967,32 @@
     <!-- Policy Modal (CRUD) -->
     <div class="modal-backdrop" id="policyModalBackdrop" data-modal-backdrop>
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="policyModalTitle" aria-describedby="policyModalDesc" tabindex="-1">
-        <div class="modal-head"><div><h2 id="policyModalTitle">Nueva póliza</h2><p id="policyModalDesc" class="help-text">Todos los campos marcados como obligatorios deben completarse. El logo admite PNG, JPG y SVG.</p></div><button class="icon-btn" type="button" data-close-modal aria-label="Cerrar diálogo">✕</button></div>
-        <div id="formErrorSummary" hidden class="error-summary" role="alert" tabindex="-1"><strong>Revisa los siguientes campos:</strong><ul id="formErrorList"></ul></div>
+        <div class="modal-head"><div><h2 id="policyModalTitle">Nova pòlissa</h2><p id="policyModalDesc" class="help-text">Completa els camps obligatoris. El logo admet PNG, JPG/JPEG i SVG.</p></div><button class="icon-btn" type="button" data-close-modal aria-label="Tancar diàleg">✕</button></div>
+        <div id="formErrorSummary" hidden class="error-summary" role="alert" tabindex="-1"><strong>Revisa els camps següents:</strong><ul id="formErrorList"></ul></div>
         <form id="policyForm" novalidate>
           <div class="form-grid">
-            <div class="field-wrap"><label for="f_id">ID póliza *</label><input class="field" id="f_id" name="policy_id" required placeholder="POL-XXXX-XXXX o tu ID personalizado" /></div>
-            <div class="field-wrap"><label for="f_accountingAccount">Cuenta contable *</label><input class="field" id="f_accountingAccount" name="accounting_account" required /></div>
-            <div class="field-wrap"><label for="f_company">Compañía *</label><input class="field" id="f_company" name="company" list="companiesList" required /></div>
+            <div class="field-wrap"><label for="f_id">ID pòlissa *</label><input class="field" id="f_id" name="policy_id" required placeholder="POL-XXXX-XXXX o el teu ID personalitzat" /></div>
+            <div class="field-wrap"><label for="f_accountingAccount">Compte comptable *</label><input class="field" id="f_accountingAccount" name="accounting_account" required /></div>
+            <div class="field-wrap"><label for="f_company">Companyia *</label><input class="field" id="f_company" name="company" list="companiesList" required /></div>
             <div class="field-wrap"><label for="f_broker">Mediador</label><input class="field" id="f_broker" name="broker" list="brokersList" /></div>
-            <div class="field-wrap full"><label for="f_concept">Concepto / tipo de seguro *</label><input class="field" id="f_concept" name="concept" required /></div>
-            <div class="field-wrap"><label for="f_policyNumber">Nº póliza</label><input class="field" id="f_policyNumber" name="policy_number" /></div>
-            <div class="field-wrap"><label for="f_paymentFrequency">Frecuencia de pago</label><select class="field" id="f_paymentFrequency" name="payment_frequency"></select></div>
-            <div class="field-wrap"><label for="f_startDate">Fecha de inicio</label><input class="field" id="f_startDate" name="start_date" type="date" /></div>
-            <div class="field-wrap"><label for="f_endDate">Fecha de fin</label><input class="field" id="f_endDate" name="end_date" type="date" /></div>
-            <div class="field-wrap"><label for="f_amount">Importe (€) *</label><input class="field" id="f_amount" name="amount" inputmode="decimal" required /></div>
-            <div class="field-wrap"><label for="f_year">Año *</label><input class="field" id="f_year" name="year" type="number" min="2000" max="2100" required /></div>
-            <div class="field-wrap"><label for="f_status">Estado *</label><select class="field" id="f_status" name="status" required><option value="ACTIVA">Activa</option><option value="VENCIDA">Vencida</option><option value="ANULADA">Anulada</option></select></div>
-            <div class="field-wrap full"><label for="f_notes">Notas</label><textarea class="field" id="f_notes" name="notes" rows="3"></textarea></div>
+            <div class="field-wrap full"><label for="f_concept">Concepte / tipus d’assegurança *</label><input class="field" id="f_concept" name="concept" required /></div>
+            <div class="field-wrap"><label for="f_policyNumber">Núm. pòlissa</label><input class="field" id="f_policyNumber" name="policy_number" /></div>
+            <div class="field-wrap"><label for="f_paymentFrequency">Freqüència de pagament</label><select class="field" id="f_paymentFrequency" name="payment_frequency"></select></div>
+            <div class="field-wrap"><label for="f_startDate">Data d’inici</label><input class="field" id="f_startDate" name="start_date" type="date" /></div>
+            <div class="field-wrap"><label for="f_endDate">Data de fi</label><input class="field" id="f_endDate" name="end_date" type="date" /></div>
+            <div class="field-wrap"><label for="f_amount">Import (€) *</label><input class="field" id="f_amount" name="amount" inputmode="decimal" required /></div>
+            <div class="field-wrap"><label for="f_year">Any *</label><input class="field" id="f_year" name="year" type="number" min="2000" max="2100" required /></div>
+            <div class="field-wrap"><label for="f_status">Estat *</label><select class="field" id="f_status" name="status" required><option value="ACTIVA">Activa</option><option value="VENCIDA">Vençuda</option><option value="ANULADA">Anul·lada</option></select></div>
+            <div class="field-wrap full"><label for="f_notes">Notes</label><textarea class="field" id="f_notes" name="notes" rows="3"></textarea></div>
             <div class="field-wrap full">
-              <label for="f_logoInput">Logo de la compañía</label>
-              <div class="field-note">Formatos permitidos: PNG, JPG/JPEG y SVG. El sistema lo adapta automáticamente dentro de un contenedor con alto contraste para mantener legibilidad.</div>
-              <label class="dropzone" id="logoDropzone" for="f_logoInput"><strong>Arrastra el logo aquí o haz clic para cargarlo</strong><span class="muted">El logo se guarda por compañía y se reutiliza en todas sus pólizas.</span></label>
+              <label for="f_logoInput">Logo de la companyia</label>
+              <div class="field-note">Formats permesos: PNG, JPG/JPEG i SVG. El sistema el mostra dins un contenidor d’alt contrast per mantenir la llegibilitat.</div>
+              <label class="dropzone" id="logoDropzone" for="f_logoInput"><strong>Arrossega el logo aquí o fes clic per carregar-lo</strong><span class="muted">El logo es desa per companyia i es reutilitza en totes les seves pòlisses.</span></label>
               <input class="sr-only" id="f_logoInput" type="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" />
-              <div class="logo-preview" id="logoPreviewWrap" hidden><div id="logoPreviewTile" class="logo-tile" aria-hidden="true"></div><div><div id="logoPreviewName" class="muted"></div><div id="logoPreviewInfo" class="field-note"></div></div><button class="btn" type="button" id="removeLogoBtn">Quitar logo cargado</button></div>
+              <div class="logo-preview" id="logoPreviewWrap" hidden><div id="logoPreviewTile" class="logo-tile" aria-hidden="true"></div><div><div id="logoPreviewName" class="muted"></div><div id="logoPreviewInfo" class="field-note"></div></div><button class="btn" type="button" id="removeLogoBtn">Treure logo carregat</button></div>
             </div>
           </div>
-          <div class="modal-actions"><button class="btn" type="button" data-close-modal>Cancelar</button><button class="btn" type="submit" data-variant="primary" id="savePolicyBtn">Guardar póliza</button></div>
+          <div class="modal-actions"><button class="btn" type="button" data-close-modal>Cancel·lar</button><button class="btn" type="submit" data-variant="primary" id="savePolicyBtn">Desar pòlissa</button></div>
         </form>
       </div>
     </div>
@@ -730,7 +1000,7 @@
     <!-- Detail Modal -->
     <div class="modal-backdrop" id="detailModalBackdrop" data-modal-backdrop>
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle" tabindex="-1">
-        <div class="modal-head"><div><h2 id="detailModalTitle">Detalle de póliza</h2></div><button class="icon-btn" type="button" data-close-modal aria-label="Cerrar diálogo">✕</button></div>
+        <div class="modal-head"><div><h2 id="detailModalTitle">Detall de pòlissa</h2></div><button class="icon-btn" type="button" data-close-modal aria-label="Tancar diàleg">✕</button></div>
         <div id="detailModalBody"></div>
       </div>
     </div>
