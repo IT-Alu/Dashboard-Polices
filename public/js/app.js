@@ -83,9 +83,7 @@ async function resolvePolicyLogoUrls(policies) {
     }
 
     try {
-      console.log('[logo render] path', path);
       const signedUrl = await getSignedLogoUrl(path);
-      console.log('[logo render] signedUrl', signedUrl);
       policy.company_logo_url = signedUrl;
       pathCache.set(path, signedUrl);
     } catch (error) {
@@ -169,11 +167,11 @@ async function renderDashboard() {
   const metrics = await getDashboardMetrics(appState.currentYear);
   
   const kpis = [
-    ['Total primas año', formatCurrency(metrics.total), 'Importes contabilizados'],
-    ['Pólizas en el año', String(metrics.policies), 'IDs únicos activos/vigentes'],
-    ['Vencen ≤ 60 días', String(metrics.renewals), 'Pólizas activas próximas'],
-    ['Compañías activas', String(metrics.companies), 'En el año seleccionado'],
-    ['Prima media', formatCurrency(metrics.avg), 'Por póliza única']
+    ['Total primes any', formatCurrency(metrics.total), 'Importes contabilitzats'],
+    ['Pòlisses de l’any', String(metrics.policies), 'IDs únics actius/vigents'],
+    ['Vencen ≤ 60 dies', String(metrics.renewals), 'Pòlisses actives properes'],
+    ['Companyies actives', String(metrics.companies), 'En l’any seleccionat'],
+    ['Prima mitjana', formatCurrency(metrics.avg), 'Per pòlissa única']
   ];
   
   document.getElementById('kpiGrid').innerHTML = kpis.map(([label, value, foot], index) => {
@@ -191,7 +189,7 @@ async function renderDashboard() {
   const banner = document.getElementById('renewalBanner');
   if (renewals.length) {
     banner.hidden = false;
-    document.getElementById('renewalBannerText').textContent = `Hay ${renewals.length} póliza(s) que vencen en 60 días o menos.`;
+    document.getElementById('renewalBannerText').textContent = `Hi ha ${renewals.length} pòlissa(es) que vencen en 60 dies o menys.`;
   } else {
     banner.hidden = true;
   }
@@ -219,8 +217,8 @@ function renderCompanyChart(companyData) {
   const tableBody = document.getElementById('chartTableBody');
   
   if (!companyData.length) {
-    container.innerHTML = '<div class="empty-state">No hay datos para el año seleccionado.</div>';
-    summary.textContent = 'Sin datos disponibles.';
+    container.innerHTML = '<div class="empty-state">No hi ha dades per l\'any seleccionat.</div>';
+    summary.textContent = 'Sense dades disponibles.';
     tableBody.innerHTML = '';
     return;
   }
@@ -255,14 +253,14 @@ function renderCompanyChart(companyData) {
 function renderRenewals(renewals) {
   const container = document.getElementById('renewalsList');
   if (!renewals.length) {
-    container.innerHTML = '<div class="empty-state">No hay renovaciones previstas en los próximos 90 días.</div>';
+    container.innerHTML = '<div class="empty-state">No hi ha renovacions previstes en els pròxims 90 dies.</div>';
     return;
   }
   
   container.innerHTML = renewals.map(item => `
     <article class="renewal-item">
       <div class="days-chip">${item.daysLeft} d</div>
-      <div><strong>${item.policy_id}</strong><br><span class="muted">${item.company} · ${item.concept || 'Sin concepto'} · Vence ${formatDate(item.end_date)}</span></div>
+      <div><strong>${item.policy_id}</strong><br><span class="muted">${item.company} · ${item.concept || 'Sense concepte'} · Vence ${formatDate(item.end_date)}</span></div>
       <div class="mono">${formatCurrency(item.amount)}</div>
     </article>
   `).join('');
@@ -274,7 +272,7 @@ function renderRenewals(renewals) {
 function renderCompanySummary(companyData) {
   const container = document.getElementById('companySummaryList');
   if (!companyData.length) {
-    container.innerHTML = '<li class="empty-state">Sin datos</li>';
+    container.innerHTML = '<li class="empty-state">Sense dades</li>';
     return;
   }
   
@@ -282,7 +280,7 @@ function renderCompanySummary(companyData) {
   container.innerHTML = companyData.map(item => {
     const color = companyAccent(item.company);
     return `<li style="border-left:6px solid ${color}">
-      <span>${item.company}<br><span class="muted">${item.uniquePolicies} póliza(s) únicas</span></span>
+      <span>${item.company}<br><span class="muted">${item.uniquePolicies} pòlisses úniques</span></span>
       <span class="mono">${formatCurrency(item.amount)} · ${Math.round((item.amount / total) * 100)}%</span>
     </li>`;
   }).join('');
@@ -296,13 +294,13 @@ async function renderTopPolicies() {
   const top = await getTopPolicies(appState.currentYear);
   
   if (!top.length) {
-    container.innerHTML = '<li class="empty-state">Sin datos</li>';
+    container.innerHTML = '<li class="empty-state">Sense dades</li>';
     return;
   }
   
   container.innerHTML = top.map((item, index) => `
     <li style="border-left:6px solid ${APP_CONFIG.ACCENT_COLORS[index % APP_CONFIG.ACCENT_COLORS.length]}">
-      <span>${item.policy_id} · ${item.company}<br><span class="muted">${item.concept || 'Sin concepto'}</span></span>
+      <span>${item.policy_id} · ${item.company}<br><span class="muted">${item.concept || 'Sense concepte'}</span></span>
       <span class="mono">${formatCurrency(item.amount)}</span>
     </li>
   `).join('');
@@ -317,7 +315,7 @@ function renderPoliciesTable() {
   document.getElementById('resultsCount').textContent = `${data.length} registro(s)`;
   
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state">No se han encontrado pólizas con los filtros actuales.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state">No s’han trobat pòlisses amb els filtres actuals.</div></td></tr>';
     document.getElementById('policiesPagination').innerHTML = '';
     return;
   }
@@ -332,7 +330,7 @@ function renderPoliciesTable() {
     const accent = companyAccent(item.company);
     return `<tr style="box-shadow: inset 4px 0 0 ${accent};">
       <td class="mono">${item.policy_id || '—'}</td>
-      <td><div class="company-cell">${logoHTML(item.company, item.company_logo_url)}<div><strong>${item.company || '—'}</strong><br><span class="muted">${item.broker || 'Sin mediador'}</span><br><span class="company-pill">${item.company || 'Compañía'}</span></div></div></td>
+      <td><div class="company-cell">${logoHTML(item.company, item.company_logo_url)}<div><strong>${item.company || '—'}</strong><br><span class="muted">${item.broker || 'Sense mediador'}</span><br><span class="company-pill">${item.company || 'Companyia'}</span></div></div></td>
       <td>${item.concept || '—'}</td>
       <td class="mono">${item.policy_number || '—'}</td>
       <td>${formatDate(item.start_date)}</td>
@@ -342,9 +340,9 @@ function renderPoliciesTable() {
       <td>${statusBadge(item.status)}</td>
       <td>${daysBadge(days, item.status)}</td>
       <td><div class="actions-cell">
-        <button class="btn action-view" type="button" data-action="view" data-id="${item.id}">Ver</button>
-        <button class="btn action-edit" type="button" data-action="edit" data-id="${item.id}">Editar</button>
-        <button class="btn action-delete" type="button" data-action="delete" data-id="${item.id}">Eliminar</button>
+        <button class="btn action-view" type="button" data-action="view" data-id="${item.id}" aria-label="Veure detall de la pòlissa ${item.policy_id || '—'}">Veure</button>
+        <button class="btn action-edit" type="button" data-action="edit" data-id="${item.id}" aria-label="Editar la pòlissa ${item.policy_id || '—'}">Editar</button>
+        <button class="btn action-delete" type="button" data-action="delete" data-id="${item.id}" aria-label="Eliminar la pòlissa ${item.policy_id || '—'}">Eliminar</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -404,13 +402,13 @@ function renderCalendar() {
   if (appState.calendarFilters.company) data = data.filter(item => item.company === appState.calendarFilters.company);
   if (appState.calendarFilters.status) data = data.filter(item => item.status === appState.calendarFilters.status);
   
-  head.innerHTML = `<tr class="calendar-quarter-row"><th class="policy-col" rowspan="2">Póliza</th><th colspan="3" class="cal-th-q1">1er trimestre</th><th colspan="3" class="cal-th-q2">2º trimestre</th><th colspan="3" class="cal-th-q3">3er trimestre</th><th colspan="3" class="cal-th-q4">4º trimestre</th></tr><tr class="calendar-month-row">${MONTHS.map((month, index) => {
+  head.innerHTML = `<tr class="calendar-quarter-row"><th class="policy-col" rowspan="2">Pòlissa</th><th colspan="3" class="cal-th-q1">1r trimestre</th><th colspan="3" class="cal-th-q2">2n trimestre</th><th colspan="3" class="cal-th-q3">3r trimestre</th><th colspan="3" class="cal-th-q4">4t trimestre</th></tr><tr class="calendar-month-row">${MONTHS.map((month, index) => {
     const cls = index < 3 ? 'cal-th-q1' : index < 6 ? 'cal-th-q2' : index < 9 ? 'cal-th-q3' : 'cal-th-q4';
     return `<th class="${cls}">${month}</th>`;
   }).join('')}</tr>`;
   
   if (!data.length) {
-    container.innerHTML = '<tr><td colspan="13"><div class="empty-state">No hay pólizas para mostrar en el calendario.</div></td></tr>';
+    container.innerHTML = '<tr><td colspan="13"><div class="empty-state">No hi ha pòlisses per mostrar al calendari.</div></td></tr>';
     return;
   }
   
@@ -423,23 +421,23 @@ function renderCalendar() {
     const monthStart = new Date(year, monthIndex, 1);
     const monthEnd = new Date(year, monthIndex + 1, 0);
     
-    if (!start || !end || start > monthEnd || end < monthStart) return { type: 'empty', cls: 'calendar-month-empty', short: '—', label: `${MONTHS[monthIndex]}: sin cobertura` };
+    if (!start || !end || start > monthEnd || end < monthStart) return { type: 'empty', cls: 'calendar-month-empty', short: '—', label: `${MONTHS[monthIndex]}: sense cobertura` };
     
     const status = (item.status || '').toUpperCase();
     const days = daysUntil(item.end_date, item.status);
     const frequency = (item.payment_frequency || '').toUpperCase();
     
-    if (status === 'ANULADA') return { type: 'cancelled', cls: 'cal-month-cancelled', short: 'AN', label: `${MONTHS[monthIndex]}: póliza anulada` };
-    if (status === 'VENCIDA' || (days !== null && days < 0)) return { type: 'expired', cls: 'cal-month-expired', short: 'VE', label: `${MONTHS[monthIndex]}: póliza vencida` };
-    if (days !== null && days <= 60) return { type: 'renewal', cls: 'cal-month-renewal', short: '≤60', label: `${MONTHS[monthIndex]}: vence en ${days} días o menos` };
-    if (frequency === 'ANUAL') return { type: 'annual', cls: 'cal-month-annual', short: 'AN', label: `${MONTHS[monthIndex]}: póliza anual activa` };
+    if (status === 'ANULADA') return { type: 'cancelled', cls: 'cal-month-cancelled', short: 'AN', label: `${MONTHS[monthIndex]}: pòlissa anulada` };
+    if (status === 'VENCIDA' || (days !== null && days < 0)) return { type: 'expired', cls: 'cal-month-expired', short: 'VE', label: `${MONTHS[monthIndex]}: pòlissa vençuda` };
+    if (days !== null && days <= 60) return { type: 'renewal', cls: 'cal-month-renewal', short: '≤60', label: `${MONTHS[monthIndex]}: venç en ${days} dies o menys` };
+    if (frequency === 'ANUAL') return { type: 'annual', cls: 'cal-month-annual', short: 'AN', label: `${MONTHS[monthIndex]}: pòlissa anual activa` };
     
     const quarterCode = getQuarterCode(monthIndex);
     return { type: 'quarter', cls: getQuarterClass(monthIndex), short: quarterCode, label: `${MONTHS[monthIndex]}: cobertura activa del ${quarterCode}` };
   }
   
   container.innerHTML = data.map(item => {
-    const subline = `${item.company || '—'} · ${item.concept || 'Sin concepto'} · ${item.payment_frequency || 'Sin frecuencia'}`;
+    const subline = `${item.company || '—'} · ${item.concept || 'Sense concepte'} · ${item.payment_frequency || 'Sense freqüència'}`;
     const monthsHtml = MONTHS.map((_, monthIndex) => {
       const meta = getCellMeta(item, monthIndex);
       if (meta.type === 'empty') return `<td><span class="calendar-month-empty" aria-label="${meta.label}">—</span></td>`;
@@ -495,7 +493,7 @@ function bindEvents() {
   }));
   
   document.getElementById('newPolicyBtn').addEventListener('click', event => openPolicyModal(null, event.currentTarget));
-  document.getElementById('newPolicyBtn2').addEventListener('click', event => openPolicyModal(null, event.currentTarget));
+  document.getElementById('newPolicyBtn2')?.addEventListener('click', event => openPolicyModal(null, event.currentTarget));
   
   document.getElementById('dashboardRefreshBtn').addEventListener('click', async () => {
     await loadUserData();
@@ -505,19 +503,21 @@ function bindEvents() {
     toast('Dashboard recalculado', 'info');
   });
   
-  document.getElementById('toggleChartTableBtn').addEventListener('click', event => {
+  document.getElementById('toggleChartTableBtn')?.addEventListener('click', event => {
     const wrap = document.getElementById('chartDataTableWrap');
+    if (!wrap) return;
+
     wrap.hidden = !wrap.hidden;
     event.currentTarget.setAttribute('aria-expanded', String(!wrap.hidden));
-    event.currentTarget.textContent = wrap.hidden ? 'Ver tabla de datos' : 'Ocultar tabla de datos';
+    event.currentTarget.textContent = wrap.hidden ? 'Veure taula de dades' : 'Amaga taula de dades';
   });
-  
-  document.getElementById('searchInput').addEventListener('input', event => {
+
+  document.getElementById('searchInput')?.addEventListener('input', event => {
     appState.filters.search = event.target.value;
     appState.page = 1;
     renderPoliciesTable();
   });
-  
+
   document.getElementById('filterCompany').addEventListener('change', event => {
     appState.filters.company = event.target.value;
     appState.page = 1;
@@ -666,7 +666,7 @@ async function openPolicyModal(policyId = null, trigger = null) {
   if (policyId) {
     const item = appState.policies.find(p => p.id === policyId);
     if (!item) return;
-    document.getElementById('policyModalTitle').textContent = 'Editar póliza';
+    document.getElementById('policyModalTitle').textContent = 'Editar pòlissa';
     // Mapeo de field_name -> element_id (HTML usa camelCase)
     const fieldMap = {
       policy_id: 'f_id',
@@ -689,7 +689,6 @@ async function openPolicyModal(policyId = null, trigger = null) {
     });
 
     if (item.company_logo_path) {
-      console.log('[logo edit] existing path', item.company_logo_path);
       try {
         const signedUrl = await getSignedLogoUrl(item.company_logo_path);
         showLogoPreview({ dataUrl: signedUrl, fileName: 'logo guardado', mimeType: 'image/*' });
@@ -700,7 +699,7 @@ async function openPolicyModal(policyId = null, trigger = null) {
       showLogoPreview({ dataUrl: item.company_logo_url, fileName: 'logo guardado', mimeType: 'image/*' });
     }
   } else {
-    document.getElementById('policyModalTitle').textContent = 'Nueva póliza';
+    document.getElementById('policyModalTitle').textContent = 'Nova pòlissa';
     document.getElementById('f_id').value = generatePolicyId();
   }
   
@@ -717,21 +716,21 @@ function openDetailModal(policyId, trigger = null) {
   document.getElementById('detailModalBody').innerHTML = `
     <div class="company-cell" style="margin-bottom:16px;">
       ${logoHTML(item.company, item.company_logo_url, 72)}
-      <div><h3>${item.policy_id} · ${item.company}</h3><p>${item.concept || 'Sin concepto'}</p><p>${statusBadge(item.status)} ${daysBadge(days, item.status)}</p></div>
+      <div><h3>${item.policy_id} · ${item.company}</h3><p>${item.concept || 'Sense concepte'}</p><p>${statusBadge(item.status)} ${daysBadge(days, item.status)}</p></div>
     </div>
-    <div class="table-wrap"><table><caption>Detalle completo de la póliza</caption><tbody>
+    <div class="table-wrap"><table><caption>Detall complet de la pòlissa</caption><tbody>
       <tr><th>ID</th><td class="mono">${item.policy_id || '—'}</td></tr>
-      <tr><th>Cuenta contable</th><td class="mono">${item.accounting_account || '—'}</td></tr>
-      <tr><th>Compañía</th><td>${item.company || '—'}</td></tr>
+      <tr><th>Comptabilitat</th><td class="mono">${item.accounting_account || '—'}</td></tr>
+      <tr><th>Companyia</th><td>${item.company || '—'}</td></tr>
       <tr><th>Mediador</th><td>${item.broker || '—'}</td></tr>
-      <tr><th>Concepto</th><td>${item.concept || '—'}</td></tr>
-      <tr><th>Nº póliza</th><td class="mono">${item.policy_number || '—'}</td></tr>
-      <tr><th>Inicio</th><td>${formatDate(item.start_date)}</td></tr>
-      <tr><th>Fin</th><td>${formatDate(item.end_date)}</td></tr>
-      <tr><th>Frecuencia</th><td>${item.payment_frequency || '—'}</td></tr>
-      <tr><th>Importe</th><td class="mono">${formatCurrency(item.amount)}</td></tr>
-      <tr><th>Año</th><td class="mono">${item.year || '—'}</td></tr>
-      <tr><th>Notas</th><td>${item.notes || '—'}</td></tr>
+      <tr><th>Concepte</th><td>${item.concept || '—'}</td></tr>
+      <tr><th>Núm. pòlissa</th><td class="mono">${item.policy_number || '—'}</td></tr>
+      <tr><th>Inici</th><td>${formatDate(item.start_date)}</td></tr>
+      <tr><th>Fi</th><td>${formatDate(item.end_date)}</td></tr>
+      <tr><th>Freqüència</th><td>${item.payment_frequency || '—'}</td></tr>
+      <tr><th>Import</th><td class="mono">${formatCurrency(item.amount)}</td></tr>
+      <tr><th>Any</th><td class="mono">${item.year || '—'}</td></tr>
+      <tr><th>Notes</th><td>${item.notes || '—'}</td></tr>
     </tbody></table></div>
     <div class="modal-actions"><button class="btn" type="button" data-detail-edit="${item.id}" data-variant="primary">Editar</button></div>
   `;
@@ -837,13 +836,13 @@ function collectFormData() {
 
 function validatePolicyData(policy) {
   const errors = [];
-  if (!policy.policy_id) errors.push({ id: 'f_id', message: 'El ID de póliza es obligatorio.' });
-  if (!policy.accounting_account) errors.push({ id: 'f_accountingAccount', message: 'La cuenta contable es obligatoria.' });
-  if (!policy.company) errors.push({ id: 'f_company', message: 'La compañía es obligatoria.' });
-  if (!policy.concept) errors.push({ id: 'f_concept', message: 'El concepto es obligatorio.' });
-  if (!policy.amount || Number(policy.amount) <= 0) errors.push({ id: 'f_amount', message: 'El importe debe ser mayor que 0.' });
-  if (!policy.year) errors.push({ id: 'f_year', message: 'El año es obligatorio.' });
-  if (policy.start_date && policy.end_date && parseDate(policy.start_date) > parseDate(policy.end_date)) errors.push({ id: 'f_endDate', message: 'La fecha de fin debe ser posterior a la fecha de inicio.' });
+  if (!policy.policy_id) errors.push({ id: 'f_id', message: 'L’ID de pòlissa és obligatori.' });
+  if (!policy.accounting_account) errors.push({ id: 'f_accountingAccount', message: 'El compte comptable és obligatori.' });
+  if (!policy.company) errors.push({ id: 'f_company', message: 'La companyia és obligatòria.' });
+  if (!policy.concept) errors.push({ id: 'f_concept', message: 'El concepte és obligatori.' });
+  if (!policy.amount || Number(policy.amount) <= 0) errors.push({ id: 'f_amount', message: 'L’import ha de ser superior a 0.' });
+  if (!policy.year) errors.push({ id: 'f_year', message: 'L’any és obligatori.' });
+  if (policy.start_date && policy.end_date && parseDate(policy.start_date) > parseDate(policy.end_date)) errors.push({ id: 'f_endDate', message: 'La data de fi ha de ser posterior a la data d’inici.' });
   return errors;
 }
 
@@ -852,18 +851,15 @@ async function savePolicyFromForm(event) {
   hideFormErrors();
   const policy = collectFormData();
   const errors = validatePolicyData(policy);
-  if (errors.length) { showFormErrors(errors); toast('Revisa los campos obligatorios del formulario.', 'error'); return; }
+  if (errors.length) { showFormErrors(errors); toast('Revisa els camps obligatoris del formulari.', 'error'); return; }
 
   const existingPolicy = appState.editingId ? appState.policies.find(p => p.id === appState.editingId) : null;
   let companyLogoPath = existingPolicy?.company_logo_path || null;
   let uploadResult = null;
 
-  console.log('[policy submit] logo file', appState.transientLogo?.file);
 
   if (appState.transientLogo?.file) {
-    console.log('[policy submit] upload start', appState.transientLogo.file);
     uploadResult = await uploadCompanyLogoWithPath(policy.company, appState.transientLogo.file);
-    console.log('[policy submit] upload result', uploadResult);
     companyLogoPath = uploadResult?.path || companyLogoPath;
   }
 
@@ -873,20 +869,19 @@ async function savePolicyFromForm(event) {
 
   try {
     if (appState.editingId) {
-      // Actualizar
+      // Actualitzar
       await updatePolicy(appState.editingId, policy);
-      toast('Póliza actualizada correctamente', 'success');
+      toast('Pòlissa actualitzada correctament', 'success');
     } else {
       // Crear
       await createPolicy(policy);
-      toast('Póliza creada correctamente', 'success');
+      toast('Pòlissa creada correctament', 'success');
     }
-    
     await loadUserData();
     renderAll();
     closeModal('policyModalBackdrop');
   } catch (error) {
-    toast('Error guardando póliza', 'error');
+    toast('Error en desar la pòlissa', 'error');
   }
 }
 
@@ -903,16 +898,17 @@ async function handleLogoFile(file) {
       mimeType: file.type || 'image/*'
     };
     showLogoPreview(appState.transientLogo);
-    toast('Logo preparado para guardarse con la compañía.', 'success');
+    toast('Logotip llest per desar-se amb la companyia.', 'success');
   } catch (error) {
-    toast('Error leyendo archivo', 'error');
+    toast('Error llegint el fitxer', 'error');
   }
 }
 
 function showLogoPreview(fileData) {
   document.getElementById('logoPreviewWrap').hidden = false;
   document.getElementById('logoPreviewTile').innerHTML = fileData && fileData.dataUrl ? `<img src="${fileData.dataUrl}" alt="" />` : '<span class="logo-fallback">LOGO</span>';
-  document.getElementById('logoPreviewName').textContent = fileData?.fileName || 'Logo actual';
+  const previewLabel = fileData?.fileName === 'logo guardado' ? 'Logo actual de la companyia' : 'Nou logo pendent de desar';
+  document.getElementById('logoPreviewName').textContent = previewLabel;
   document.getElementById('logoPreviewInfo').textContent = fileData?.mimeType || '';
 }
 
@@ -941,45 +937,6 @@ function exportPolicies(data, fileName) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-function importCSV(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    const text = String(reader.result || '');
-    const lines = text.split(/\r?\n/).filter(Boolean);
-    if (lines.length < 2) { toast('El CSV está vacío o no contiene datos.', 'error'); return; }
-    
-    const sep = lines[0].includes(';') ? ';' : ',';
-    const headers = lines[0].split(sep).map(h => h.replaceAll('"', '').trim().toUpperCase());
-    const map = { 'ID': 'policy_id', 'CUENTA CONTABLE': 'accounting_account', 'COMPAÑÍA': 'company', 'MEDIADOR': 'broker', 'CONCEPTO': 'concept', 'Nº POLIZA': 'policy_number', 'INICIO': 'start_date', 'FIN': 'end_date', 'FRECUENCIA PAGO': 'payment_frequency', 'IMPORTE': 'amount', 'AÑO': 'year', 'ESTADO': 'status', 'NOTAS': 'notes' };
-    
-    const imported = [];
-    for (const line of lines.slice(1)) {
-      const cols = line.split(sep).map(c => c.replace(/^"|"$/g, '').trim());
-      const raw = {};  // No generar id - Supabase lo generará automáticamente
-      headers.forEach((header, index) => {
-        const field = map[header];
-        if (field) raw[field] = cols[index] || '';
-      });
-      if (!raw.policy_id && !raw.concept) continue;
-      imported.push(normalizePolicy(raw));
-    }
-    
-    if (!imported.length) { toast('No se han encontrado registros válidos en el CSV.', 'error'); return; }
-    if (!confirm(`Se importarán ${imported.length} registro(s). ¿Continuar?`)) return;
-    
-    // Insertar en lotes
-    const insertBatch = async (batch) => {
-      for (const policy of batch) {
-        await createPolicy(policy);
-      }
-    };
-    
-    toast(`${imported.length} registro(s) importado(s) correctamente.`, 'success');
-    loadUserData().then(renderAll);
-  };
-  reader.readAsText(file, 'utf-8');
-}
-
 function loadSampleData() {
   const year = new Date().getFullYear();
   const near1 = addDays(todayStart(), 18).toISOString().slice(0, 10);
@@ -993,7 +950,7 @@ function loadSampleData() {
     { policy_id: 'POL-005', accounting_account: '62500005', company: 'SOLUNION', broker: 'MUR & VALLS', concept: 'Riesgo clientes / crédito', policy_number: 'SOL-005', start_date: year + '-01-01', end_date: near2, payment_frequency: 'TRIMESTRAL', amount: 27556.40, year, status: 'ACTIVA', notes: '' }
   ];
   
-  toast('Datos de ejemplo cargados.', 'success');
+  toast('Dades d’exemple carregades.', 'success');
   loadUserData().then(renderAll);
 }
 
@@ -1034,42 +991,42 @@ function validateCsvRow(raw, rowNumber, existingIds, csvSeenIds) {
 
   const errors = [];
   const normalizedPolicyId = policyId.toUpperCase();
-  if (!policyId) errors.push('policy_id obligatorio');
-  if (!company) errors.push('company obligatorio');
+  if (!policyId) errors.push('policy_id obligatori');
+  if (!company) errors.push('company obligatori');
 
   const amountNumber = parseCsvAmount(amountValue);
   if (amountNumber === null || amountNumber < 0) {
-    errors.push('amount numérico mayor o igual a 0');
+    errors.push('amount numèric major o igual a 0');
   }
 
   const yearNumber = Number(yearValue);
   if (!/^[0-9]{4}$/.test(yearValue) || Number.isNaN(yearNumber) || yearNumber < 1900 || yearNumber > 2100) {
-    errors.push('year inválido');
+    errors.push('year invàlid');
   }
 
   if (!['ACTIVA', 'VENCIDA', 'ANULADA'].includes(statusValue)) {
-    errors.push('status debe ser ACTIVA, VENCIDA o ANULADA');
+    errors.push('status ha de ser ACTIVA, VENCIDA o ANULADA');
   }
 
   const parsedStart = start ? parseDate(start) : null;
   const parsedEnd = end ? parseDate(end) : null;
-  if (start && !parsedStart) errors.push('start_date inválida');
-  if (end && !parsedEnd) errors.push('end_date inválida');
-  if (parsedStart && parsedEnd && parsedEnd < parsedStart) errors.push('end_date no puede ser anterior a start_date');
+  if (start && !parsedStart) errors.push('start_date invàlida');
+  if (end && !parsedEnd) errors.push('end_date invàlida');
+  if (parsedStart && parsedEnd && parsedEnd < parsedStart) errors.push('end_date no pot ser anterior a start_date');
 
   if (policyId) {
     if (csvSeenIds.has(normalizedPolicyId)) {
-      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id repetido en CSV' };
+      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id repetit en CSV' };
     }
     if (existingIds.has(normalizedPolicyId)) {
       csvSeenIds.add(normalizedPolicyId);
-      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id ya existe' };
+      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id ja existeix' };
     }
     csvSeenIds.add(normalizedPolicyId);
   }
 
   if (errors.length) {
-    return { status: 'invalid', rowNumber, policy_id: policyId || '(sin policy_id)', reasons: errors };
+    return { status: 'invalid', rowNumber, policy_id: policyId || '(sense policy_id)', reasons: errors };
   }
 
   return { status: 'valid', raw, policy_id: policyId };
@@ -1080,7 +1037,7 @@ function importCSV(file) {
   reader.onload = () => {
     const text = String(reader.result || '');
     const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-    if (lines.length < 2) { toast('El CSV está vacío o no contiene datos.', 'error'); return; }
+    if (lines.length < 2) { toast('El CSV està buit o no conté dades.', 'error'); return; }
 
     const sep = lines[0].includes(';') ? ';' : ',';
     const headers = lines[0].split(sep).map(h => sanitizeCsvValue(h).toUpperCase());
@@ -1102,7 +1059,7 @@ function importCSV(file) {
       });
 
       if (!Object.keys(raw).length) {
-        invalidRows.push({ status: 'invalid', rowNumber, policy_id: '(fila vacía)', reasons: ['Fila vacía o cabeceras no reconocidas'] });
+        invalidRows.push({ status: 'invalid', rowNumber, policy_id: '(fila buida)', reasons: ['Fila buida o capçaleres no reconegudes'] });
         continue;
       }
 
@@ -1117,18 +1074,17 @@ function importCSV(file) {
     }
 
     const summary = [];
-    if (imported.length) summary.push(`${imported.length} nuevo(s)`);
-    if (duplicateRows.length) summary.push(`${duplicateRows.length} duplicado(s)`);
-    if (invalidRows.length) summary.push(`${invalidRows.length} inválido(s)`);
-    const summaryMessage = summary.length ? summary.join(', ') : '0 registros válidos';
+      if (imported.length) summary.push(`${imported.length} nou(s)`);
+    if (duplicateRows.length) summary.push(`${duplicateRows.length} duplicat(s)`);
+    if (invalidRows.length) summary.push(`${invalidRows.length} invàlid(s)`);
+    const summaryMessage = summary.length ? summary.join(', ') : '0 registres vàlids';
 
     if (!imported.length) {
-      toast(`Importación cancelada: ${summaryMessage}.`, duplicateRows.length ? 'warning' : 'error');
-      console.warn('[CSV import] detalles:', { duplicateRows, invalidRows });
+      toast(`Importació cancel·lada: ${summaryMessage}.`, duplicateRows.length ? 'warning' : 'error');
       return;
     }
 
-    if (!confirm(`Se importarán ${imported.length} póliza(s). ${duplicateRows.length} duplicado(s) omitido(s). ${invalidRows.length} inválido(s) omitido(s). ¿Continuar?`)) {
+    if (!confirm(`S'importaran ${imported.length} pòlissa(es). ${duplicateRows.length} duplicat(s) omès(s). ${invalidRows.length} invàlid(s) omès(s). Vols continuar?`)) {
       return;
     }
 
@@ -1136,9 +1092,9 @@ function importCSV(file) {
       for (const policy of imported) {
         await createPolicy(policy);
       }
-      toast(`Importación finalizada: ${summaryMessage}.`, 'success');
+      toast(`Importació finalitzada: ${summaryMessage}.`, 'success');
       if (duplicateRows.length || invalidRows.length) {
-        console.warn('[CSV import] detalles:', { duplicateRows, invalidRows });
+        // Información de importació disponible en l'estat intern
       }
       await loadUserData();
       renderAll();
@@ -1148,14 +1104,14 @@ function importCSV(file) {
 }
 
 async function clearAllData() {
-  if (!confirm('¿Seguro que quieres borrar todos los datos?')) return;
+  if (!confirm('Estàs segur que vols esborrar totes les dades?')) return;
   
   // Eliminar todas las pólizas (soft delete)
   for (const policy of appState.policies) {
     await deletePolicy(policy.id);
   }
   
-  toast('Todos los datos han sido eliminados.', 'info');
+  toast('Totes les dades s’han eliminat.', 'info');
   await loadUserData();
   renderAll();
 }

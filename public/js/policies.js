@@ -105,7 +105,7 @@ async function updatePolicy(id, updates) {
  * @param {string} id - ID de la póliza (UUID)
  */
 async function deletePolicy(id) {
-  if (!confirm('¿Estás seguro de eliminar esta póliza?')) return;
+  if (!confirm('Estàs segur que vols eliminar aquesta pòlissa?')) return;
 
   try {
     const { error } = await supabaseClient
@@ -118,7 +118,7 @@ async function deletePolicy(id) {
 
     if (error) throw error;
 
-    toast('Póliza eliminada correctamente', 'success');
+    toast('Pòlissa eliminada correctament', 'success');
 
     // Si tienes función para recargar listado:
     // await loadPolicies();

@@ -34,39 +34,39 @@ function handleError(error) {
     
     switch (error.code) {
       case 'PGRST116':
-        message = 'No tienes permiso para realizar esta acción';
+        message = 'No tens permís per fer aquesta acció';
         break;
       case 'PGRST301':
-        message = 'Recurso no encontrado';
+        message = 'Recurs no trobat';
         break;
       case '23505':
-        message = 'Ya existe un registro con estos datos';
+        message = 'Ja existeix un registre amb aquestes dades';
         break;
       case '42501':
-        message = 'No tienes acceso a este recurso';
+        message = 'No tens accés a aquest recurs';
         break;
       case '23503':
-        message = 'La referencia no es válida';
+        message = 'La referència no és vàlida';
         break;
       case '22001':
-        message = 'El dato es demasiado largo';
+        message = 'La dada és massa llarga';
         break;
       default:
-        message = error.message || 'Error en la operación';
+        message = error.message || 'Error en l’operació';
     }
   }
   
   // Errores de autenticación
   if (error.status === 401 || error.message?.includes('Invalid login credentials')) {
-    message = 'Email o contraseña incorrectos';
+    message = 'Email o contrasenya incorrectes';
   }
   
   if (error.message?.includes('User already registered')) {
-    message = 'Este email ya está registrado';
+    message = 'Aquest email ja està registrat';
   }
   
   if (error.message?.includes('Invalid email')) {
-    message = 'El email no es válido';
+    message = 'L’email no és vàlid';
   }
   
   // Mostrar error al usuario

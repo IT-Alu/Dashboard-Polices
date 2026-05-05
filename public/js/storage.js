@@ -16,29 +16,29 @@ const LOGO_EXTENSIONS = ['png', 'jpg', 'jpeg', 'svg'];
  */
 function validateLogoFile(file) {
   if (!file) {
-    return { ok: false, message: 'No se ha seleccionado ningún archivo' };
+    return { ok: false, message: 'No s’ha seleccionat cap fitxer' };
   }
 
   // Validar tamaño máximo: 200 KB
   const maxSize = 200 * 1024; // 200 KB en bytes
   if (file.size > maxSize) {
-    return { ok: false, message: 'El logo debe ser menor de 200 KB' };
+    return { ok: false, message: 'El logo ha de ser menor de 200 KB' };
   }
 
   // Validar MIME types permitidos
   const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/svg+xml'];
   if (!allowedMimeTypes.includes(file.type)) {
-    return { ok: false, message: 'Tipo de archivo no permitido. Solo PNG, JPG o SVG' };
+    return { ok: false, message: 'Tipus de fitxer no permès. Només PNG, JPG o SVG' };
   }
 
   // Validar extensión
   const fileName = file.name.toLowerCase();
   const hasValidExtension = LOGO_EXTENSIONS.some(ext => fileName.endsWith(`.${ext}`));
   if (!hasValidExtension) {
-    return { ok: false, message: 'Extensión no permitida. Solo PNG, JPG o SVG' };
+    return { ok: false, message: 'Extensió no permesa. Només PNG, JPG o SVG' };
   }
 
-  return { ok: true, message: 'Archivo válido' };
+  return { ok: true, message: 'Fitxer vàlid' };
 }
 
 /**

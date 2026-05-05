@@ -76,7 +76,7 @@ async function handleAuthSuccess(session) {
   }
 
   if (typeof toast === 'function') {
-    toast('¡Bienvenido de nuevo!', 'success');
+    toast('Benvingut de nou!', 'success');
   }
 }
 
@@ -97,7 +97,7 @@ function handleAuthLogout() {
   showAuthModal();
 
   if (typeof toast === 'function') {
-    toast('Sesión cerrada correctamente', 'info');
+    toast('Sessió tancada correctament', 'info');
   }
 }
 
@@ -172,12 +172,12 @@ async function handleLogin(event) {
   const password = document.getElementById('loginPassword')?.value;
 
   if (!email || !password) {
-    showAuthMessage('Por favor, completa todos los campos', 'error');
+    showAuthMessage('Si us plau, completa tots els camps', 'error');
     return;
   }
 
   if (password.length < 8) {
-    showAuthMessage('La contraseña debe tener al menos 8 caracteres', 'error');
+    showAuthMessage('La contrasenya ha de tenir almenys 8 caràcters', 'error');
     return;
   }
 
@@ -197,13 +197,13 @@ async function handleLogin(event) {
 
     if (error) throw error;
 
-    showAuthMessage('¡Login exitoso! Cargando...', 'success');
+    showAuthMessage('Inici de sessió correcte. Carregant...', 'success');
   } catch (error) {
     console.error('Login error:', error);
-    showAuthMessage(error.message || 'Error en el login', 'error');
+    showAuthMessage(error.message || 'Error en l’inici de sessió', 'error');
   } finally {
     if (submitBtn) submitBtn.disabled = false;
-    if (submitText) submitText.textContent = 'Entrar';
+    if (submitText) submitText.textContent = 'Inicia sessió';
   }
 }
 
@@ -214,7 +214,7 @@ async function handleLogin(event) {
 async function handleRegister(event) {
   event?.preventDefault();
   hideAuthMessages();
-  showAuthMessage('El registro está deshabilitado. Contacta con administración.', 'error');
+  showAuthMessage('El registre està deshabilitat. Contacta amb l’administració.', 'error');
 }
 
 /**

@@ -729,11 +729,6 @@
         <p>Gestiona les pòlisses de forma segura</p>
       </div>
       
-      <!-- Pestañas Login/Registro -->
-      <div class="auth-tabs" role="tablist">
-        <button class="auth-tab active" role="tab" aria-selected="true" data-tab="login" id="tabLogin">Iniciar sessió</button>
-      </div>
-      
       <!-- Mensajes de error/éxito -->
       <div id="authError" class="auth-error" role="alert" aria-live="assertive"></div>
       <div id="authSuccess" class="auth-success" role="status" aria-live="polite"></div>
@@ -749,7 +744,7 @@
           <input type="password" id="loginPassword" class="auth-field" required minlength="8" autocomplete="current-password" placeholder="••••••••" />
         </div>
         <button type="submit" class="auth-submit" id="loginSubmit">
-          <span class="auth-submit-text">Entrar</span>
+          <span class="auth-submit-text">Inicia sessió</span>
         </button>
       </form>
     </div>
@@ -859,8 +854,8 @@
       <!-- Policies Page -->
       <section id="page-policies" class="page" aria-labelledby="policies-title">
         <div class="page-head">
-          <div><span class="eyebrow">Pòlisses</span><h1 id="policies-title">Base de datos mobile first y más visual</h1><p>Puedes crear, editar o eliminar pólizas. Los cambios se reflejan de forma inmediata en métricas y visualizaciones.</p></div>
-          <div class="nav-actions"><button class="btn" type="button" id="clearFiltersBtn">Netejar filtres</button><button class="btn" type="button" data-variant="primary" id="newPolicyBtn2">+ Nova pòlissa</button></div>
+          <div><span class="eyebrow">Pòlisses</span><h1 id="policies-title">Gestió de pòlisses</h1><p>Crea, edita, consulta i elimina pòlisses. Els canvis s’actualitzen automàticament al resum i al calendari.</p></div>
+          <div class="nav-actions"><button class="btn" type="button" id="clearFiltersBtn">Netejar filtres</button></div>
         </div>
         <div class="card policies-card policy-toolbar" style="margin-bottom:18px;">
           <div class="toolbar filters-toolbar" role="search" aria-label="Filtres de pòlisses">
@@ -931,9 +926,9 @@
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#dbeafe;border-color:#93c5fd;"></span>2T · Azul</span>
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#ffedd5;border-color:#fdba74;"></span>3T · Taronja</span>
             <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef3e2;border-color:#d6b58d;"></span>4T · Marró</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef9c3;border-color:#facc15;"></span>Vence ≤60 días · Amarillo</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fee2e2;border-color:#fca5a5;"></span>Vençuda · Rojo</span>
-            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#f3f4f6;border:2px dashed #9ca3af;"></span>Anul·lada · Gris punteado</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fef9c3;border-color:#facc15;"></span>Venç ≤60 dies · Groc</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#fee2e2;border-color:#fca5a5;"></span>Vençuda · Vermell</span>
+            <span class="calendar-legend-item"><span class="calendar-legend-swatch" style="background:#f3f4f6;border:2px dashed #9ca3af;"></span>Anul·lada · Gris puntejat</span>
           </div>
           <div class="calendar-table-wrap"><table class="calendar-table" aria-describedby="calendarLegendText"><caption class="sr-only">Calendari de cobertures per trimestres i mesos</caption><thead id="calendarHead"></thead><tbody id="calendarList"></tbody></table></div>
           <p class="calendar-note">Consell: pots prémer qualsevol cel·la acolorida per obrir el detall de la pòlissa.</p>
@@ -946,7 +941,7 @@
         <div class="layout-2-equal">
           <article class="card">
             <div class="card-header"><div><div class="card-title">Importar CSV</div><div class="help-text">Formats admesos: CSV amb separador ; o ,</div></div></div>
-            <label class="dropzone" id="csvDropzone" for="csvInput"><strong>Arrossega un CSV aquí o fes clic per seleccionar-lo</strong><span class="muted">Columnas: ID, CUENTA CONTABLE, COMPAÑÍA, MEDIADOR, CONCEPTO, Nº POLIZA, INICIO, FIN, FRECUENCIA PAGO, IMPORTE, AÑO, ESTADO</span></label>
+            <label class="dropzone" id="csvDropzone" for="csvInput"><strong>Arrossega un CSV aquí o fes clic per seleccionar-lo</strong><span class="muted">Columnes esperades: ID, CUENTA CONTABLE, COMPAÑÍA, MEDIADOR, CONCEPTO, Nº POLIZA, INICIO, FIN, FRECUENCIA PAGO, IMPORTE, AÑO, ESTADO</span></label>
             <input id="csvInput" type="file" accept=".csv,.txt" class="sr-only" />
             <div id="importFeedback" class="help-text" style="margin-top:12px;"></div>
           </article>
