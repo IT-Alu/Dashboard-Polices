@@ -997,6 +997,156 @@ function loadSampleData() {
   loadUserData().then(renderAll);
 }
 
+function sanitizeCsvValue(value) {
+  return String(value || '').replace(/^"|"$/g, '').trim();
+}
+
+function parseCsvAmount(value) {
+  const raw = sanitizeCsvValue(value).replace(/\s/g, '');
+  if (!raw) return null;
+
+  const hasComma = raw.includes(',');
+  const hasDot = raw.includes('.');
+  let normalized = raw;
+
+  if (hasComma && hasDot) {
+    if (raw.lastIndexOf(',') > raw.lastIndexOf('.')) {
+      normalized = raw.replace(/\./g, '').replace(/,/g, '.');
+    } else {
+      normalized = raw.replace(/,/g, '');
+    }
+  } else if (hasComma) {
+    normalized = raw.replace(/,/g, '.');
+  }
+
+  const valueNumber = Number(normalized);
+  return Number.isFinite(valueNumber) ? valueNumber : null;
+}
+
+function validateCsvRow(raw, rowNumber, existingIds, csvSeenIds) {
+  const policyId = sanitizeCsvValue(raw.policy_id);
+  const company = sanitizeCsvValue(raw.company);
+  const amountValue = sanitizeCsvValue(raw.amount);
+  const yearValue = sanitizeCsvValue(raw.year);
+  const statusValue = sanitizeCsvValue(raw.status).toUpperCase();
+  const start = sanitizeCsvValue(raw.start_date);
+  const end = sanitizeCsvValue(raw.end_date);
+
+  const errors = [];
+  const normalizedPolicyId = policyId.toUpperCase();
+  if (!policyId) errors.push('policy_id obligatorio');
+  if (!company) errors.push('company obligatorio');
+
+  const amountNumber = parseCsvAmount(amountValue);
+  if (amountNumber === null || amountNumber < 0) {
+    errors.push('amount numérico mayor o igual a 0');
+  }
+
+  const yearNumber = Number(yearValue);
+  if (!/^[0-9]{4}$/.test(yearValue) || Number.isNaN(yearNumber) || yearNumber < 1900 || yearNumber > 2100) {
+    errors.push('year inválido');
+  }
+
+  if (!['ACTIVA', 'VENCIDA', 'ANULADA'].includes(statusValue)) {
+    errors.push('status debe ser ACTIVA, VENCIDA o ANULADA');
+  }
+
+  const parsedStart = start ? parseDate(start) : null;
+  const parsedEnd = end ? parseDate(end) : null;
+  if (start && !parsedStart) errors.push('start_date inválida');
+  if (end && !parsedEnd) errors.push('end_date inválida');
+  if (parsedStart && parsedEnd && parsedEnd < parsedStart) errors.push('end_date no puede ser anterior a start_date');
+
+  if (policyId) {
+    if (csvSeenIds.has(normalizedPolicyId)) {
+      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id repetido en CSV' };
+    }
+    if (existingIds.has(normalizedPolicyId)) {
+      csvSeenIds.add(normalizedPolicyId);
+      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id ya existe' };
+    }
+    csvSeenIds.add(normalizedPolicyId);
+  }
+
+  if (errors.length) {
+    return { status: 'invalid', rowNumber, policy_id: policyId || '(sin policy_id)', reasons: errors };
+  }
+
+  return { status: 'valid', raw, policy_id: policyId };
+}
+
+function importCSV(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result || '');
+    const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
+    if (lines.length < 2) { toast('El CSV está vacío o no contiene datos.', 'error'); return; }
+
+    const sep = lines[0].includes(';') ? ';' : ',';
+    const headers = lines[0].split(sep).map(h => sanitizeCsvValue(h).toUpperCase());
+    const map = { 'ID': 'policy_id', 'CUENTA CONTABLE': 'accounting_account', 'COMPAÑÍA': 'company', 'MEDIADOR': 'broker', 'CONCEPTO': 'concept', 'Nº PÓLIZA': 'policy_number', 'INICIO': 'start_date', 'FIN': 'end_date', 'FRECUENCIA PAGO': 'payment_frequency', 'IMPORTE': 'amount', 'AÑO': 'year', 'ESTADO': 'status', 'NOTAS': 'notes' };
+
+    const existingPolicyIds = new Set(appState.policies.map(p => String(p.policy_id || '').trim().toUpperCase()));
+    const csvSeenIds = new Set();
+    const imported = [];
+    const duplicateRows = [];
+    const invalidRows = [];
+
+    for (let index = 1; index < lines.length; index += 1) {
+      const rowNumber = index + 1;
+      const cols = lines[index].split(sep).map(value => sanitizeCsvValue(value));
+      const raw = {};
+      headers.forEach((header, colIndex) => {
+        const field = map[header];
+        if (field) raw[field] = cols[colIndex] || '';
+      });
+
+      if (!Object.keys(raw).length) {
+        invalidRows.push({ status: 'invalid', rowNumber, policy_id: '(fila vacía)', reasons: ['Fila vacía o cabeceras no reconocidas'] });
+        continue;
+      }
+
+      const result = validateCsvRow(raw, rowNumber, existingPolicyIds, csvSeenIds);
+      if (result.status === 'valid') {
+        imported.push(normalizePolicy(result.raw));
+      } else if (result.status === 'duplicate') {
+        duplicateRows.push(result);
+      } else {
+        invalidRows.push(result);
+      }
+    }
+
+    const summary = [];
+    if (imported.length) summary.push(`${imported.length} nuevo(s)`);
+    if (duplicateRows.length) summary.push(`${duplicateRows.length} duplicado(s)`);
+    if (invalidRows.length) summary.push(`${invalidRows.length} inválido(s)`);
+    const summaryMessage = summary.length ? summary.join(', ') : '0 registros válidos';
+
+    if (!imported.length) {
+      toast(`Importación cancelada: ${summaryMessage}.`, duplicateRows.length ? 'warning' : 'error');
+      console.warn('[CSV import] detalles:', { duplicateRows, invalidRows });
+      return;
+    }
+
+    if (!confirm(`Se importarán ${imported.length} póliza(s). ${duplicateRows.length} duplicado(s) omitido(s). ${invalidRows.length} inválido(s) omitido(s). ¿Continuar?`)) {
+      return;
+    }
+
+    (async () => {
+      for (const policy of imported) {
+        await createPolicy(policy);
+      }
+      toast(`Importación finalizada: ${summaryMessage}.`, 'success');
+      if (duplicateRows.length || invalidRows.length) {
+        console.warn('[CSV import] detalles:', { duplicateRows, invalidRows });
+      }
+      await loadUserData();
+      renderAll();
+    })();
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
 async function clearAllData() {
   if (!confirm('¿Seguro que quieres borrar todos los datos?')) return;
   
