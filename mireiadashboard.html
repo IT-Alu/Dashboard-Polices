@@ -564,6 +564,7 @@
 
     function saveState(announce=false){ localStorage.setItem(STORAGE_KEY, JSON.stringify({policies:state.policies, companies:state.companies})); localStorage.setItem(THEME_KEY, state.theme); if(bc) bc.postMessage({type:'sync', payload:{policies:state.policies, companies:state.companies, theme:state.theme}}); if(announce) announceStatus('Datos guardados y panel actualizado.'); }
     function loadState(){ try { const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); state.policies=Array.isArray(saved.policies)?saved.policies:[]; state.companies=saved.companies&&typeof saved.companies==='object'?saved.companies:{}; } catch(_) { state.policies=[]; state.companies={}; } }
+    
     function applyTheme(){ document.documentElement.setAttribute('data-theme',state.theme); const isDark=state.theme==='dark'; const button=document.getElementById('themeToggle'); button.textContent=isDark?'Modo claro':'Modo oscuro'; button.setAttribute('aria-pressed', String(!isDark)); }
     function toggleTheme(){ state.theme=state.theme==='dark'?'light':'dark'; applyTheme(); saveState(false); toast('Tema actualizado.','info'); }
 
