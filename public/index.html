@@ -480,7 +480,6 @@
       <!-- Pestañas Login/Registro -->
       <div class="auth-tabs" role="tablist">
         <button class="auth-tab active" role="tab" aria-selected="true" data-tab="login" id="tabLogin">Iniciar Sesión</button>
-        <button class="auth-tab" role="tab" aria-selected="false" data-tab="register" id="tabRegister">Registrarse</button>
       </div>
       
       <!-- Mensajes de error/éxito -->
@@ -499,26 +498,6 @@
         </div>
         <button type="submit" class="auth-submit" id="loginSubmit">
           <span class="auth-submit-text">Entrar</span>
-        </button>
-      </form>
-      
-      <!-- Formulario Registro -->
-      <form id="registerForm" class="auth-form hidden" novalidate>
-        <div class="field-wrap">
-          <label for="registerEmail">Email</label>
-          <input type="email" id="registerEmail" class="auth-field" required autocomplete="email" placeholder="tu@empresa.com" />
-        </div>
-        <div class="field-wrap">
-          <label for="registerPassword">Contraseña</label>
-          <input type="password" id="registerPassword" class="auth-field" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" />
-          <small>La contraseña debe tener al menos 8 caracteres</small>
-        </div>
-        <div class="field-wrap">
-          <label for="registerConfirm">Confirmar Contraseña</label>
-          <input type="password" id="registerConfirm" class="auth-field" required autocomplete="new-password" placeholder="Repite la contraseña" />
-        </div>
-        <button type="submit" class="auth-submit" id="registerSubmit">
-          <span class="auth-submit-text">Registrarse</span>
         </button>
       </form>
     </div>
