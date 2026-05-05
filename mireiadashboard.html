@@ -567,7 +567,6 @@
     
     function applyTheme(){ document.documentElement.setAttribute('data-theme',state.theme); const isDark=state.theme==='dark'; const button=document.getElementById('themeToggle'); button.textContent=isDark?'Modo claro':'Modo oscuro'; button.setAttribute('aria-pressed', String(!isDark)); }
     function toggleTheme(){ state.theme=state.theme==='dark'?'light':'dark'; applyTheme(); saveState(false); toast('Tema actualizado.','info'); }
-
     function getCompanyMeta(name){ const key=sanitizeText(name).toUpperCase(); if(!key) return null; if(!state.companies[key]) state.companies[key]={name:key, logoDataUrl:null, logoAlt:'Logo de '+key, logoMimeType:null, logoFileName:null, updatedAt:new Date().toISOString()}; return state.companies[key]; }
     function getCompanyNames(){ const names=new Set([...DEFAULT_COMPANIES, ...Object.keys(state.companies), ...state.policies.map(p=>(p.company||'').toUpperCase()).filter(Boolean)]); return [...names].sort((a,b)=>a.localeCompare(b,'es')); }
     function getBrokerNames(){ const names=new Set([...BROKERS, ...state.policies.map(p=>p.broker||'').filter(Boolean)]); return [...names].sort((a,b)=>a.localeCompare(b,'es')); }
