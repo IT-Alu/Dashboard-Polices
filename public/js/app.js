@@ -147,7 +147,7 @@ function renderListsAndSelectors() {
   document.getElementById('companiesList').innerHTML = names.map(name => `<option value="${name}"></option>`).join('');
   document.getElementById('brokersList').innerHTML = getBrokerNames().map(name => `<option value="${name}"></option>`).join('');
   
-  const companyOptions = ['<option value="">Todas las compañías</option>', ...names.map(name => `<option value="${name}">${name}</option>`)].join('');
+  const companyOptions = ['<option value="">Totes les companyies</option>', ...names.map(name => `<option value="${name}">${name}</option>`)].join('');
   document.getElementById('filterCompany').innerHTML = companyOptions;
   document.getElementById('calendarCompanyFilter').innerHTML = companyOptions;
   
