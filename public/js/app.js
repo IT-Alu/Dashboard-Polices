@@ -11,6 +11,12 @@
 const MONTHS = APP_CONFIG.MONTHS;
 const FREQUENCIES = APP_CONFIG.FREQUENCIES;
 const KPI_STYLES = APP_CONFIG.KPI_STYLES;
+const DENSITY_STORAGE_KEY = 'uiDensity';
+const DENSITY_OPTIONS = [
+  { value: 'compact', label: 'Compacta' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'large', label: 'Gran' }
+];
 
 /**
  * Inicializa la aplicación
@@ -19,14 +25,16 @@ async function initApp() {
   // Inicializar tabs de autenticación
   initAuthTabs();
   
-  // Cargar tema
+  // Cargar tema y densidad
   loadTheme();
+  loadDensity();
   
   // Cargar datos iniciales
   await loadUserData();
   
   // Renderizar UI
   renderYearSelect();
+  renderDensitySelect();
   renderListsAndSelectors();
   renderDashboard();
   renderPoliciesTable();
@@ -102,6 +110,46 @@ function loadTheme() {
   const savedTheme = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.THEME) || 'dark';
   appState.theme = savedTheme;
   applyTheme();
+}
+
+/**
+ * Carga la densidad de UI desde localStorage
+ */
+function loadDensity() {
+  const savedDensity = localStorage.getItem(DENSITY_STORAGE_KEY) || 'normal';
+  appState.density = DENSITY_OPTIONS.some(option => option.value === savedDensity) ? savedDensity : 'normal';
+  applyDensity();
+}
+
+/**
+ * Aplica la densidad actual
+ */
+function applyDensity() {
+  document.documentElement.setAttribute('data-density', appState.density);
+  const select = document.getElementById('densitySelect');
+  if (select) {
+    select.value = appState.density;
+  }
+}
+
+/**
+ * Alterna la densidad y guarda la preferencia
+ */
+function setDensity(density) {
+  appState.density = density;
+  localStorage.setItem(DENSITY_STORAGE_KEY, density);
+  applyDensity();
+  toast('Mida visual actualitzada', 'info');
+}
+
+/**
+ * Renderiza el selector de densidad
+ */
+function renderDensitySelect() {
+  const select = document.getElementById('densitySelect');
+  if (!select) return;
+  select.innerHTML = DENSITY_OPTIONS.map(option => `<option value="${option.value}">${option.label}</option>`).join('');
+  select.value = appState.density || 'normal';
 }
 
 /**
@@ -474,6 +522,7 @@ async function renderAll() {
  */
 function bindEvents() {
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('densitySelect')?.addEventListener('change', event => setDensity(event.target.value));
   
   document.getElementById('yearSelect').addEventListener('change', async event => {
     appState.currentYear = Number(event.target.value);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ca" data-theme="dark">
+<html lang="ca" data-theme="dark" data-density="normal">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,7 +20,8 @@
       --radius-md: 20px;
       --radius-lg: 28px;
       --header-height: 72px;
-      --content-width: 1680px;
+      --base-font-size: 16px;
+      --content-width: 1720px;
       --focus-width: 4px;
       --purple: #b17aff;
       --green: #45d45b;
@@ -75,11 +76,15 @@
       color-scheme: light;
     }
 
+    html[data-density="compact"] { --base-font-size: 15px; --content-width: 1600px; }
+    html[data-density="normal"] { --base-font-size: 16px; --content-width: 1720px; }
+    html[data-density="large"] { --base-font-size: 17px; --content-width: 1760px; }
+
     * { box-sizing: border-box; }
     html { scroll-padding-top: calc(var(--header-height) + 16px); }
     body {
       margin: 0; min-height: 100vh; background: var(--bg-glow), var(--bg); color: var(--text);
-      font-family: var(--font-ui); font-size: 17px; line-height: 1.55; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+      font-family: var(--font-ui); font-size: var(--base-font-size); line-height: 1.55; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
     }
     img, svg { display: block; max-width: 100%; }
     button, input, select, textarea { font: inherit; }
@@ -903,6 +908,8 @@
         <div class="top-actions">
           <label for="yearSelect" class="sr-only">Any actiu</label>
           <select id="yearSelect" class="field"></select>
+          <label for="densitySelect" class="sr-only">Mida visual</label>
+          <select id="densitySelect" class="field" aria-label="Mida visual"></select>
           <button class="btn" type="button" id="themeToggle" aria-pressed="false">Mode clar</button>
           <button class="btn" type="button" data-variant="primary" id="newPolicyBtn">+ Nova pòlissa</button>
           <button class="btn" type="button" id="logoutBtn" data-variant="danger">Sortir</button>
