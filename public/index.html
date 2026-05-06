@@ -242,20 +242,24 @@
        ESTILOS DEL DASHBOARD (tu diseño original)
        ============================================ */
     .app-header {
-      position: sticky; top: 0; z-index: 80; min-height: var(--header-height);
+      position: sticky; top: 0; z-index: 80; min-height: auto;
       background: color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter: blur(18px);
       border-bottom: 1px solid color-mix(in oklab, var(--line) 72%, transparent);
     }
     .header-inner {
-      width: min(var(--content-width), calc(100% - 24px)); margin: 0 auto; padding: 16px 0; display: grid; gap: 16px; grid-template-columns: 1fr; align-items: center;
+      width: min(var(--content-width), calc(100% - 24px)); margin: 0 auto; padding: 12px 0; display: grid; gap: 12px; grid-template-columns: 1fr; align-items: center;
     }
     .brand { display:flex;align-items:center;gap:12px; }
-    .brand-mark { width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;font-size:26px;box-shadow:0 10px 20px rgba(177,122,255,.25); }
-    .brand-title { font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; color: var(--text-soft); }
-    .brand-sub { color: var(--text-subtle); font-size: 1rem; }
+    .brand-mark { width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;font-size:24px;box-shadow:0 10px 20px rgba(177,122,255,.25); }
+    .brand-title { font-family: var(--font-display); font-weight: 900; font-size: 1.18rem; color: var(--text-soft); }
+    .brand-sub { color: var(--text-subtle); font-size: .95rem; }
 
     .page-nav, .top-actions, .toolbar, .nav-actions, .modal-actions, .actions-cell { display:flex;flex-wrap:wrap;gap:10px;align-items:center; }
-    .page-nav .btn, .top-actions > * { flex: 1 1 150px; min-width: 140px; }
+    .page-nav .btn, .top-actions > * { flex: 1 1 150px; min-width: 130px; }
+    .app-header .page-nav .btn { padding: 10px 14px; min-height: 44px; font-size: .96rem; }
+    .app-header .top-actions > * { min-height: 44px; }
+    .app-header .top-actions .btn { padding: 10px 14px; font-size: .96rem; }
+    .app-header .top-actions select.field { font-size: .96rem; }
 
     .container { width: min(var(--content-width), calc(100% - 24px)); margin:0 auto; padding:20px 0 72px; }
     .page { display:none; animation:fadeIn .2s ease-out; }
@@ -359,12 +363,15 @@
     .policy-toolbar { background:linear-gradient(135deg,color-mix(in oklab,var(--purple-soft) 26%,var(--surface)), color-mix(in oklab,var(--amber-soft) 18%,var(--surface-2))); }
     .card.policies-card.policy-toolbar {
       overflow: visible;
+      padding-bottom: 20px;
+      margin-bottom: 24px !important;
     }
     .card.policies-card.policy-toolbar .toolbar {
       overflow: visible;
+      padding-bottom: 6px;
     }
     .card.policies-card.policy-toolbar .filter-field {
-      padding-bottom: 6px;
+      padding-bottom: 10px;
     }
     #filterCompany {
       margin-bottom: 4px;
