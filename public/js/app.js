@@ -1063,16 +1063,17 @@ function validateCsvRow(raw, rowNumber, existingIds, csvSeenIds) {
   if (end && !parsedEnd) errors.push('end_date invàlida');
   if (parsedStart && parsedEnd && parsedEnd < parsedStart) errors.push('end_date no pot ser anterior a start_date');
 
-  if (policyId) {
-    if (csvSeenIds.has(normalizedPolicyId)) {
-      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id repetit en CSV' };
-    }
-    if (existingIds.has(normalizedPolicyId)) {
-      csvSeenIds.add(normalizedPolicyId);
-      return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id ja existeix' };
-    }
-    csvSeenIds.add(normalizedPolicyId);
-  }
+  // DUPLICAT commented out pending fix
+  // if (policyId) {
+  //   if (csvSeenIds.has(normalizedPolicyId)) {
+  //     return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id repetit en CSV' };
+  //   }
+  //   if (existingIds.has(normalizedPolicyId)) {
+  //     csvSeenIds.add(normalizedPolicyId);
+  //     return { status: 'duplicate', rowNumber, policy_id: policyId, reason: 'policy_id ja existeix' };
+  //   }
+  //   csvSeenIds.add(normalizedPolicyId);
+  // }
 
   if (errors.length) {
     return { status: 'invalid', rowNumber, policy_id: policyId || '(sense policy_id)', reasons: errors };
@@ -1092,8 +1093,9 @@ function importCSV(file) {
     const headers = lines[0].split(sep).map(h => sanitizeCsvValue(h).toUpperCase());
     const map = { 'ID': 'policy_id', 'CUENTA CONTABLE': 'accounting_account', 'COMPAÑÍA': 'company', 'MEDIADOR': 'broker', 'CONCEPTO': 'concept', 'Nº PÓLIZA': 'policy_number', 'INICIO': 'start_date', 'FIN': 'end_date', 'FRECUENCIA PAGO': 'payment_frequency', 'IMPORTE': 'amount', 'AÑO': 'year', 'ESTADO': 'status', 'NOTAS': 'notes' };
 
-    const existingPolicyIds = new Set(appState.policies.map(p => String(p.policy_id || '').trim().toUpperCase()));
-    const csvSeenIds = new Set();
+    // DUPLICAT commented out pending fix
+    // const existingPolicyIds = new Set(appState.policies.map(p => String(p.policy_id || '').trim().toUpperCase()));
+    // const csvSeenIds = new Set();
     const imported = [];
     const duplicateRows = [];
     const invalidRows = [];
@@ -1112,7 +1114,7 @@ function importCSV(file) {
         continue;
       }
 
-      const result = validateCsvRow(raw, rowNumber, existingPolicyIds, csvSeenIds);
+      const result = validateCsvRow(raw, rowNumber, new Set(), new Set());
       if (result.status === 'valid') {
         imported.push(normalizePolicy(result.raw));
       } else if (result.status === 'duplicate') {
