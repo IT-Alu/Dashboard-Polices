@@ -19,24 +19,25 @@
       --radius-sm: 14px;
       --radius-md: 20px;
       --radius-lg: 28px;
-      --header-height: 30px;
+      --header-padding-y: 8px;
+      --header-font-size: 14px;
+      --header-brand-size: 1.12rem;
+      --header-sub-size: .78rem;
+      --header-btn-height: 40px;
+      --header-mark-size: 38px;
       --header-gap: 10px;
-      --header-mark-size: 40px;
-      --header-title-size: 1.15rem;
-      --header-sub-size: .88rem;
-      --header-action-font-size: .92rem;
-      --header-action-padding-y: 9px;
-      --header-action-padding-x: 12px;
-      --base-font-size: 16px;
-      --content-width: 1720px;
-      --density-card-padding: 18px;
-      --density-gap: 16px;
-      --density-field-height: 48px;
-      --density-btn-padding-y: 10px;
-      --density-btn-padding-x: 16px;
-      --density-table-cell-y: 12px;
-      --density-table-cell-x: 12px;
-      --density-calendar-cell: 56px;
+      --base-font-size: 15.5px;
+      --content-width: 1520px;
+      --page-gutter: 48px;
+      --density-card-padding: 15px;
+      --density-gap: 13px;
+      --density-section-gap: 18px;
+      --density-field-height: 44px;
+      --density-btn-padding-y: 8px;
+      --density-btn-padding-x: 13px;
+      --density-table-cell-y: 10px;
+      --density-table-cell-x: 10px;
+      --density-calendar-cell: 48px;
       --focus-width: 4px;
       --purple: #b17aff;
       --green: #45d45b;
@@ -92,40 +93,46 @@
     }
 
     html[data-density="compact"] {
-      --base-font-size: 15px;
-      --content-width: 1600px;
-      --density-card-padding: 14px;
-      --density-gap: 12px;
-      --density-field-height: 42px;
-      --density-btn-padding-y: 8px;
-      --density-btn-padding-x: 12px;
-      --density-table-cell-y: 9px;
-      --density-table-cell-x: 10px;
-      --density-calendar-cell: 46px;
+      --base-font-size: 14.5px;
+      --content-width: 1400px;
+      --page-gutter: 56px;
+      --density-card-padding: 12px;
+      --density-gap: 10px;
+      --density-section-gap: 14px;
+      --density-field-height: 40px;
+      --density-btn-padding-y: 7px;
+      --density-btn-padding-x: 11px;
+      --density-table-cell-y: 8px;
+      --density-table-cell-x: 9px;
+      --density-calendar-cell: 42px;
     }
     html[data-density="normal"] {
+      --base-font-size: 15.5px;
+      --content-width: 1520px;
+      --page-gutter: 48px;
+      --density-card-padding: 15px;
+      --density-gap: 13px;
+      --density-section-gap: 18px;
+      --density-field-height: 44px;
+      --density-btn-padding-y: 8px;
+      --density-btn-padding-x: 13px;
+      --density-table-cell-y: 10px;
+      --density-table-cell-x: 10px;
+      --density-calendar-cell: 48px;
+    }
+    html[data-density="large"] {
       --base-font-size: 16px;
-      --content-width: 1720px;
+      --content-width: 1640px;
+      --page-gutter: 40px;
       --density-card-padding: 18px;
       --density-gap: 16px;
+      --density-section-gap: 22px;
       --density-field-height: 48px;
       --density-btn-padding-y: 10px;
       --density-btn-padding-x: 16px;
       --density-table-cell-y: 12px;
       --density-table-cell-x: 12px;
-      --density-calendar-cell: 56px;
-    }
-    html[data-density="large"] {
-      --base-font-size: 17px;
-      --content-width: 1760px;
-      --density-card-padding: 20px;
-      --density-gap: 18px;
-      --density-field-height: 52px;
-      --density-btn-padding-y: 11px;
-      --density-btn-padding-x: 18px;
-      --density-table-cell-y: 13px;
-      --density-table-cell-x: 14px;
-      --density-calendar-cell: 60px;
+      --density-calendar-cell: 54px;
     }
 
     * { box-sizing: border-box; }
@@ -300,21 +307,21 @@
       border-bottom: 1px solid color-mix(in oklab, var(--line) 72%, transparent);
     }
     .header-inner {
-      width: min(var(--content-width), calc(100% - 20px)); margin: 0 auto; padding: 10px 0; display: grid; gap: var(--header-gap); grid-template-columns: 1fr; align-items: center;
+      width: min(var(--content-width), calc(100% - var(--page-gutter))); margin: 0 auto; padding: var(--header-padding-y) 0; display: grid; gap: var(--header-gap); grid-template-columns: 1fr; align-items: center;
     }
     .brand { display:flex;align-items:center;gap:12px; }
     .brand-mark { width: var(--header-mark-size); height: var(--header-mark-size); border-radius:16px; display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;font-size:22px;box-shadow:0 10px 20px rgba(177,122,255,.25); }
-    .brand-title { font-family: var(--font-display); font-weight: 900; font-size: var(--header-title-size); color: var(--text-soft); }
+    .brand-title { font-family: var(--font-display); font-weight: 900; font-size: var(--header-brand-size); color: var(--text-soft); }
     .brand-sub { color: var(--text-subtle); font-size: var(--header-sub-size); }
 
     .page-nav, .top-actions, .toolbar, .nav-actions, .modal-actions, .actions-cell { display:flex;flex-wrap:wrap;gap:10px;align-items:center; }
     .page-nav .btn, .top-actions > * { flex: 1 1 150px; min-width: 130px; }
-    .app-header .page-nav .btn { padding: var(--header-action-padding-y) var(--header-action-padding-x); min-height: 44px; font-size: var(--header-action-font-size); }
-    .app-header .top-actions > * { min-height: 44px; }
-    .app-header .top-actions .btn { padding: var(--header-action-padding-y) var(--header-action-padding-x); font-size: var(--header-action-font-size); }
-    .app-header .top-actions select.field { font-size: var(--header-action-font-size); }
+    .app-header .page-nav .btn { padding: var(--header-padding-y) var(--density-btn-padding-x); min-height: var(--header-btn-height); font-size: var(--header-font-size); }
+    .app-header .top-actions > * { min-height: var(--header-btn-height); }
+    .app-header .top-actions .btn { padding: var(--header-padding-y) var(--density-btn-padding-x); font-size: var(--header-font-size); }
+    .app-header .top-actions select.field { font-size: var(--header-font-size); }
 
-    .container { width: min(var(--content-width), calc(100% - 24px)); margin:0 auto; padding: calc(var(--density-gap) + 4px) 0 72px; }
+    .container { width: min(var(--content-width), calc(100% - var(--page-gutter))); margin:0 auto; padding: calc(var(--density-gap) + 4px) 0 72px; }
     .page { display:none; animation:fadeIn .2s ease-out; }
     .page.active { display:block; }
     @keyframes fadeIn { from {opacity:0;transform:translateY(8px);} to {opacity:1;transform:translateY(0);} }
