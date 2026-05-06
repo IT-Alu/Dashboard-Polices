@@ -93,18 +93,24 @@
     }
 
     html[data-density="compact"] {
-      --base-font-size: 14.5px;
-      --content-width: 1400px;
-      --page-gutter: 56px;
-      --density-card-padding: 12px;
-      --density-gap: 10px;
-      --density-section-gap: 14px;
-      --density-field-height: 40px;
-      --density-btn-padding-y: 7px;
-      --density-btn-padding-x: 11px;
-      --density-table-cell-y: 8px;
-      --density-table-cell-x: 9px;
-      --density-calendar-cell: 42px;
+      --base-font-size: 13.5px;
+      --content-width: 1280px;
+      --page-gutter: 72px;
+      --density-card-padding: 10px;
+      --density-gap: 8px;
+      --density-section-gap: 12px;
+      --density-field-height: 38px;
+      --density-btn-padding-y: 6px;
+      --density-btn-padding-x: 10px;
+      --density-table-cell-y: 7px;
+      --density-table-cell-x: 8px;
+      --density-calendar-cell: 40px;
+      --header-font-size: 13px;
+      --header-brand-size: 1.02rem;
+      --header-sub-size: .72rem;
+      --header-btn-height: 38px;
+      --header-padding-y: 6px;
+      --header-mark-size: 34px;
     }
     html[data-density="normal"] {
       --base-font-size: 15.5px;
@@ -133,6 +139,108 @@
       --density-table-cell-y: 12px;
       --density-table-cell-x: 12px;
       --density-calendar-cell: 54px;
+    }
+
+    /* ===== COMPACT DENSITY OVERRIDES ===== */
+    html[data-density="compact"] h1 {
+      font-size: clamp(1.45rem, 4vw, 1.95rem);
+    }
+    html[data-density="compact"] .kpi-card {
+      min-height: 118px;
+    }
+    html[data-density="compact"] .kpi-value {
+      font-size: clamp(1.1rem, 3vw, 1.45rem);
+    }
+    html[data-density="compact"] .kpi-foot {
+      font-size: .84rem;
+    }
+    html[data-density="compact"] .brand-mark {
+      width: var(--header-mark-size);
+      height: var(--header-mark-size);
+      font-size: 17px;
+    }
+    html[data-density="compact"] .brand {
+      gap: 8px;
+    }
+    html[data-density="compact"] .page-nav .btn {
+      min-height: var(--header-btn-height);
+      padding: var(--header-padding-y) var(--density-btn-padding-x);
+      font-size: var(--header-font-size);
+      border-radius: 14px;
+    }
+    html[data-density="compact"] .filter-field .field {
+      min-height: var(--density-field-height);
+    }
+    html[data-density="compact"] .table-policies th,
+    html[data-density="compact"] .table-policies td {
+      padding: var(--density-table-cell-y) var(--density-table-cell-x);
+    }
+    html[data-density="compact"] .table-policies .actions-cell .btn {
+      min-height: 34px;
+      padding: 5px 8px;
+      font-size: .84rem;
+    }
+    html[data-density="compact"] .badge,
+    html[data-density="compact"] .company-pill,
+    html[data-density="compact"] .days-chip {
+      font-size: .87rem;
+    }
+    html[data-density="compact"] .icon-btn {
+      width: var(--density-field-height);
+    }
+    html[data-density="compact"] .bar-btn {
+      min-height: 36px;
+    }
+    html[data-density="compact"] .card-title {
+      font-size: 1.04rem;
+    }
+    html[data-density="compact"] .logo-tile {
+      width: 44px;
+      height: 44px;
+    }
+    html[data-density="compact"] .kpi-icon {
+      width: 34px;
+      height: 34px;
+      font-size: 16px;
+      top: 12px;
+      right: 12px;
+    }
+    html[data-density="compact"] .calendar-policy-name {
+      font-size: .98rem;
+    }
+    html[data-density="compact"] .calendar-month-btn,
+    html[data-density="compact"] .calendar-month-empty {
+      font-size: .86rem;
+    }
+    html[data-density="compact"] .field-wrap label {
+      font-size: .93rem;
+    }
+    html[data-density="compact"] .header-inner {
+      padding: var(--header-padding-y) 0;
+    }
+    html[data-density="compact"] .top-actions {
+      gap: 8px;
+    }
+    html[data-density="compact"] .container {
+      padding-top: calc(var(--density-gap) + 2px);
+    }
+    @media (max-width: 599px) {
+      html[data-density="compact"] .btn,
+      html[data-density="compact"] .field,
+      html[data-density="compact"] .icon-btn {
+        min-height: var(--density-field-height);
+      }
+    }
+    @media (min-width: 900px) {
+      html[data-density="compact"] .calendar-month-btn,
+      html[data-density="compact"] .calendar-month-empty {
+        width: var(--density-calendar-cell);
+      }
+    }
+    @media (min-width: 1200px) {
+      html[data-density="compact"] .kpi-card {
+        min-height: 130px;
+      }
     }
 
     * { box-sizing: border-box; }
