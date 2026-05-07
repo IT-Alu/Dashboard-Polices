@@ -1140,13 +1140,26 @@ function importCSV(file) {
     }
 
     (async () => {
+      const failedRows = [];
       for (const policy of imported) {
-        await createPolicy(policy);
+        try {
+          await createPolicy(policy);
+        } catch (error) {
+          failedRows.push({ policy_id: policy.policy_id, reason: error.message || 'Error desconegut' });
+        }
       }
-      toast(`Importació finalitzada: ${summaryMessage}.`, 'success');
-      if (duplicateRows.length || invalidRows.length) {
-        // Información de importació disponible en l'estat intern
+
+      const resultParts = summary.slice();
+      if (failedRows.length) resultParts.push(`${failedRows.length} error(s)`);
+
+      toast(`Importació finalitzada: ${resultParts.join(', ')}.`, failedRows.length ? 'warning' : 'success');
+
+      if (failedRows.length) {
+        const details = failedRows.map(f => `${f.policy_id}: ${f.reason}`).join('\n');
+        console.warn('Errors d\'importació CSV:\n' + details);
+        toast(`Errors: ${details}`, 'error');
       }
+
       await loadUserData();
       renderAll();
     })();
