@@ -119,8 +119,9 @@ async function deletePolicy(id) {
     if (error) throw error;
 
     toast('Pòlissa eliminada correctament', 'success');
-    await loadUserData();
-    renderAll();
+    // Eliminar localment i redibuixar (més ràpid que recarregar tot)
+    appState.policies = appState.policies.filter(p => p.id !== id);
+    if (typeof renderAll === 'function') renderAll();
   } catch (error) {
     handleError(error);
   }

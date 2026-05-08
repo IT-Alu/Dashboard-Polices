@@ -908,8 +908,12 @@ async function savePolicyFromForm(event) {
 
 
   if (appState.transientLogo?.file) {
-    uploadResult = await uploadCompanyLogoWithPath(policy.company, appState.transientLogo.file);
-    companyLogoPath = uploadResult?.path || companyLogoPath;
+    try {
+      uploadResult = await uploadCompanyLogoWithPath(policy.company, appState.transientLogo.file);
+      companyLogoPath = uploadResult?.path || companyLogoPath;
+    } catch (logoError) {
+      console.warn('Error pujant el logo, es continua sense logo:', logoError);
+    }
   }
 
   if (companyLogoPath) {
@@ -918,15 +922,17 @@ async function savePolicyFromForm(event) {
 
   try {
     if (appState.editingId) {
-      // Actualitzar
-      await updatePolicy(appState.editingId, policy);
+      const updated = await updatePolicy(appState.editingId, policy);
       toast('Pòlissa actualitzada correctament', 'success');
+      if (updated) {
+        const idx = appState.policies.findIndex(p => p.id === appState.editingId);
+        if (idx !== -1) appState.policies[idx] = updated;
+      }
     } else {
-      // Crear
-      await createPolicy(policy);
+      const created = await createPolicy(policy);
       toast('Pòlissa creada correctament', 'success');
+      if (created) appState.policies.unshift(created);
     }
-    await loadUserData();
     renderAll();
     closeModal('policyModalBackdrop');
   } catch (error) {

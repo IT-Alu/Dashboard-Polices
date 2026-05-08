@@ -180,7 +180,7 @@ function daysUntil(endDate, status) {
  */
 function suggestStatus(record) {
   if ((record.status || '').toUpperCase() === 'ANULADA') return 'ANULADA';
-  const end = parseDate(record.endDate);
+  const end = parseDate(record.end_date);
   if (!end) return 'ACTIVA';
   return end < new Date() ? 'VENCIDA' : 'ACTIVA';
 }
