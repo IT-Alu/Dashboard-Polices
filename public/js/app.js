@@ -734,7 +734,16 @@ async function openPolicyModal(policyId = null, trigger = null) {
     };
     Object.entries(fieldMap).forEach(([fieldName, elementId]) => {
       const field = document.getElementById(elementId);
-      if (field) field.value = item[fieldName] ?? '';
+      if (field) {
+        if (fieldName === 'amount' && item.amount != null) {
+          field.value = Number(item.amount).toLocaleString('es-ES', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        } else {
+          field.value = item[fieldName] ?? '';
+        }
+      }
     });
 
     if (item.company_logo_path) {
