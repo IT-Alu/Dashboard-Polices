@@ -147,12 +147,17 @@ function toISODate(value) {
  * @returns {string} Valor formateado como moneda
  */
 function formatCurrency(value) {
+  if (value == null || value === '') return '0,00 €';
+  let num = value;
+  if (typeof num === 'string') {
+    num = num.replace(/\./g, '').replace(',', '.');
+  }
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(Number(value || 0));
+  }).format(Number(num) || 0);
 }
 
 /**
