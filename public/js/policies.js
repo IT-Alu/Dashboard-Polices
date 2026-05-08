@@ -119,10 +119,8 @@ async function deletePolicy(id) {
     if (error) throw error;
 
     toast('Pòlissa eliminada correctament', 'success');
-
-    // Si tienes función para recargar listado:
-    // await loadPolicies();
-
+    await loadUserData();
+    renderAll();
   } catch (error) {
     handleError(error);
   }
