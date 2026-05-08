@@ -925,13 +925,21 @@ async function savePolicyFromForm(event) {
       const updated = await updatePolicy(appState.editingId, policy);
       toast('Pòlissa actualitzada correctament', 'success');
       if (updated) {
+        if (updated.company_logo_path) {
+          updated.company_logo_url = await getSignedLogoUrl(updated.company_logo_path).catch(() => null);
+        }
         const idx = appState.policies.findIndex(p => p.id === appState.editingId);
         if (idx !== -1) appState.policies[idx] = updated;
       }
     } else {
       const created = await createPolicy(policy);
       toast('Pòlissa creada correctament', 'success');
-      if (created) appState.policies.unshift(created);
+      if (created) {
+        if (created.company_logo_path) {
+          created.company_logo_url = await getSignedLogoUrl(created.company_logo_path).catch(() => null);
+        }
+        appState.policies.unshift(created);
+      }
     }
     renderAll();
     closeModal('policyModalBackdrop');

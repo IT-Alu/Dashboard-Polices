@@ -336,7 +336,7 @@ function normalizePolicy(record) {
     payment_frequency: sanitizeText(record.payment_frequency).toUpperCase(),
     start_date: toISODate(record.start_date) || null,
     end_date: toISODate(record.end_date) || null,
-    amount: Number(String(record.amount || '0').replace(',', '.')) || 0,
+    amount: Number(String(record.amount || '0').replace(/\./g, '').replace(',', '.')) || 0,
     year: Number(record.year) || new Date().getFullYear(),
     status: sanitizeText(record.status || suggestStatus(record)).toUpperCase(),
     notes: sanitizeText(record.notes),
