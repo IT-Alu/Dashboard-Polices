@@ -56,10 +56,11 @@ async function fetchPoliciesByYear(year) {
  * @param {object} policyData - Datos de la póliza
  * @returns {Promise<object>} Póliza creada
  */
-async function createPolicy(policyData) {
+async function createPolicy(policyData, retryCount = 0) {
   try {
-    // Eliminar 'id' para que Supabase lo genere automáticamente
-    // El policy_id ya fue generado o proporcionado por el usuario en normalizePolicy()
+    console.log('Intentando crear póliza:', policyData);
+    console.log('currentUserId:', getCurrentUserId());
+
     const dataToInsert = { ...policyData };
     delete dataToInsert.id;
     
@@ -69,10 +70,20 @@ async function createPolicy(policyData) {
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error en insert:', error);
+      throw error;
+    }
     
+    console.log('Póliza creada:', data);
     return data;
   } catch (error) {
+    console.error('Excepción en createPolicy:', error);
+    if (retryCount < 2 && (error.message?.includes('network') || error.code === 'PGRST301')) {
+      console.log('Reintentando...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return createPolicy(policyData, retryCount + 1);
+    }
     handleError(error);
   }
 }
@@ -326,6 +337,7 @@ function normalizePolicy(record) {
     : generatePolicyId();
   
   return {
+    user_id: getCurrentUserId(),
     id: record.id || undefined,  // Solo incluir si existe (UUID de Supabase)
     policy_id: policyId,  // ID personalizado o generado
     accounting_account: sanitizeText(record.accounting_account),

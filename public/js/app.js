@@ -911,6 +911,13 @@ async function savePolicyFromForm(event) {
   const errors = validatePolicyData(policy);
   if (errors.length) { showFormErrors(errors); toast('Revisa els camps obligatoris del formulari.', 'error'); return; }
 
+  // Verificar sesión usando el usuario autenticado real
+  const currentUserId = getCurrentUserId();
+  if (!currentUserId) {
+    toast('Sessió expirada, recarga la página', 'error');
+    return;
+  }
+
   const existingPolicy = appState.editingId ? appState.policies.find(p => p.id === appState.editingId) : null;
   let companyLogoPath = existingPolicy?.company_logo_path || null;
   let uploadResult = null;

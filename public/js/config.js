@@ -47,6 +47,9 @@ const supabaseClient = window.supabase.createClient(
       persistSession: true,
       detectSessionInUrl: true
     },
+    global: {
+      timeout: 10000
+    },
     storage: {}
   }
 );
