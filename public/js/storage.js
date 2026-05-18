@@ -344,3 +344,95 @@ window.deleteCompanyLogo = deleteCompanyLogo;
 window.getCompanyLogoUrl = getCompanyLogoUrl;
 window.findCompanyLogoPath = findCompanyLogoPath;
 window.extractStoragePathFromSignedUrl = extractStoragePathFromSignedUrl;
+
+function validatePdfFile(file) {
+  if (!file) {
+    return { ok: false, message: 'No s’ha seleccionat cap fitxer' };
+  }
+
+  if (file.type !== 'application/pdf') {
+    return { ok: false, message: 'Només s’admeten fitxers PDF' };
+  }
+
+  const maxSize = 20 * 1024 * 1024; // 20 MB
+  if (file.size > maxSize) {
+    return { ok: false, message: 'El PDF ha de ser menor de 20 MB' };
+  }
+
+  return { ok: true, message: 'PDF vàlid' };
+}
+
+function getPdfFolder(year) {
+  const userId = getCurrentUserId();
+  if (!userId) throw new Error('Usuario no autenticado');
+  const safeYear = String(year || new Date().getFullYear()).replace(/[^0-9]/g, '');
+  if (!safeYear) throw new Error('Any no vàlid');
+  return `${userId}/docs/${safeYear}`;
+}
+
+function getSafeFileName(fileName) {
+  return String(fileName || 'document').replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-');
+}
+
+async function uploadPolicyPdf(year, file) {
+  const userId = getCurrentUserId();
+  if (!userId) {
+    throw new Error('Usuario no autenticado');
+  }
+
+  const validation = validatePdfFile(file);
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
+
+  const folder = getPdfFolder(year);
+  const safeName = getSafeFileName(file.name);
+  const timestamp = Date.now();
+  const fileName = `${folder}/${timestamp}-${safeName}`;
+
+  const { error } = await supabaseClient.storage
+    .from(APP_CONFIG.STORAGE.DOCS)
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return fileName;
+}
+
+async function listPolicyPdfs(year) {
+  const folder = getPdfFolder(year);
+  const { data: files, error } = await supabaseClient.storage
+    .from(APP_CONFIG.STORAGE.DOCS)
+    .list(folder, {
+      limit: 200,
+      sortBy: { column: 'name', order: 'asc' }
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return files || [];
+}
+
+async function getPdfUrl(path, expiresIn = 3600) {
+  const { data, error } = await supabaseClient.storage
+    .from(APP_CONFIG.STORAGE.DOCS)
+    .createSignedUrl(path, expiresIn);
+
+  if (error) {
+    throw error;
+  }
+
+  return data.signedUrl;
+}
+
+window.validatePdfFile = validatePdfFile;
+window.uploadPolicyPdf = uploadPolicyPdf;
+window.listPolicyPdfs = listPolicyPdfs;
+window.getPdfUrl = getPdfUrl;

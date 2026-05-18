@@ -64,7 +64,8 @@ const APP_CONFIG = {
   
   // Nombres de los buckets de storage
   STORAGE: {
-    LOGOS: 'company-logos'
+    LOGOS: 'company-logos',
+    DOCS: 'policy-documents'
   },
   
   // Frecuencias de pago

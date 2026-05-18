@@ -187,6 +187,121 @@ async function renderYearSelect() {
   select.value = String(appState.currentYear);
 }
 
+function getAvailableDocumentYears() {
+  const currentYear = new Date().getFullYear();
+  return [currentYear + 1, currentYear, currentYear - 1, currentYear - 2, currentYear - 3];
+}
+
+function renderPdfDashboardControls(selectedYear = appState.pdfYear) {
+  appState.pdfYear = Number(selectedYear) || new Date().getFullYear();
+  const years = getAvailableDocumentYears();
+  const options = years.map(year => `<option value="${year}">${year}</option>`).join('');
+  const uploadYearSelect = document.getElementById('pdfYearSelect');
+  const listYearSelect = document.getElementById('pdfListYearSelect');
+  if (uploadYearSelect) {
+    uploadYearSelect.innerHTML = options;
+    uploadYearSelect.value = String(new Date().getFullYear());
+  }
+  if (listYearSelect) {
+    listYearSelect.innerHTML = options;
+    listYearSelect.value = String(appState.pdfYear);
+  }
+}
+
+function setPdfUploadFeedback(message, tone = 'info') {
+  const feedback = document.getElementById('pdfUploadFeedback');
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.dataset.tone = tone;
+}
+
+function setPdfListFeedback(message) {
+  const feedback = document.getElementById('pdfUploadFeedback');
+  if (!feedback) return;
+  if (!message) {
+    feedback.textContent = '';
+    delete feedback.dataset.tone;
+    return;
+  }
+  feedback.textContent = message;
+  feedback.dataset.tone = 'info';
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+}
+
+async function renderPdfList(year) {
+  const body = document.getElementById('pdfListBody');
+  if (!body) return;
+  body.innerHTML = `<tr><td colspan="4">Carregant...</td></tr>`;
+  try {
+    const files = await fetchPolicyDocuments(Number(year));
+    if (!files || files.length === 0) {
+      body.innerHTML = `<tr><td colspan="4">No hi ha documents per a l’any ${year}</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = files.map(file => {
+      const displayName = file.file_name || 'PDF';
+      return `<tr>
+        <td>${displayName}</td>
+        <td>${formatBytes(file.file_size || 0)}</td>
+        <td>${new Date(file.created_at).toLocaleString('ca-ES')}</td>
+        <td>
+          <button class="btn" type="button" data-action="download" data-path="${file.storage_path}">Obrir</button>
+          <button class="btn" type="button" data-action="delete-pdf" data-id="${file.id}" data-path="${file.storage_path}">Eliminar</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (error) {
+    console.error('Error carregant PDFs:', error);
+    body.innerHTML = `<tr><td colspan="4">Error carregant documents</td></tr>`;
+  }
+}
+
+async function renderPdfDashboardWidget(year) {
+  renderPdfDashboardControls(year);
+  await renderPdfList(appState.pdfYear);
+}
+
+async function handlePdfUpload(event) {
+  event.preventDefault();
+  const yearSelect = document.getElementById('pdfYearSelect');
+  const fileInput = document.getElementById('pdfFileInput');
+  if (!yearSelect || !fileInput) return;
+
+  const year = Number(yearSelect.value);
+  const file = fileInput.files?.[0];
+  if (!file) {
+    setPdfUploadFeedback('Selecciona un fitxer PDF abans de pujar.', 'error');
+    return;
+  }
+
+  setPdfUploadFeedback('Pujant PDF...', 'info');
+
+  try {
+    const storagePath = await uploadPolicyPdf(year, file);
+    await createPolicyDocument({
+      year,
+      file_name: file.name,
+      storage_path: storagePath,
+      file_size: file.size
+    });
+
+    setPdfUploadFeedback('PDF pujat i registrat correctament.', 'success');
+    fileInput.value = '';
+    await renderPdfList(appState.pdfYear);
+  } catch (error) {
+    console.error('Error pujant PDF:', error);
+    setPdfUploadFeedback(error.message || 'Error pujant el PDF.', 'error');
+  }
+}
+
 /**
  * Renderiza listas y selectores
  */
@@ -212,6 +327,8 @@ function renderListsAndSelectors() {
  * Renderiza el dashboard
  */
 async function renderDashboard() {
+  await renderPdfDashboardWidget(appState.pdfYear);
+
   const metrics = await getDashboardMetrics(appState.currentYear);
   
   const kpis = [
@@ -604,13 +721,39 @@ function bindEvents() {
     renderPoliciesTable();
   }));
   
-  document.body.addEventListener('click', event => {
+  document.body.addEventListener('click', async event => {
     const action = event.target.closest('[data-action]');
     if (action) {
       const id = action.dataset.id, type = action.dataset.action;
       if (type === 'view') openDetailModal(id, action);
       if (type === 'edit') openPolicyModal(id, action);
       if (type === 'delete') deletePolicy(id);
+      if (type === 'download' && action.dataset.path) {
+        try {
+          const url = await getPdfUrl(action.dataset.path);
+          window.open(url, '_blank');
+        } catch (error) {
+          console.error('Error obrint PDF:', error);
+          toast('No s’ha pogut obrir el PDF', 'error');
+        }
+      }
+      if (type === 'delete-pdf') {
+        const docId = action.dataset.id;
+        const docPath = action.dataset.path;
+        if (docId && docPath) {
+          if (!confirm('Vols eliminar aquest PDF de manera permanent?')) {
+            return;
+          }
+          try {
+            await deletePolicyDocument(docId, docPath);
+            toast('PDF eliminat correctament', 'success');
+            await renderPdfList(appState.pdfYear);
+          } catch (error) {
+            console.error('Error eliminant PDF:', error);
+            toast('No s’ha pogut eliminar el PDF', 'error');
+          }
+        }
+      }
       return;
     }
     
@@ -697,6 +840,15 @@ function bindEvents() {
   csvDropzone.addEventListener('drop', event => {
     const file = event.dataTransfer.files?.[0];
     if (file) importCSV(file);
+  });
+
+  document.getElementById('pdfUploadButton')?.addEventListener('click', handlePdfUpload);
+  document.getElementById('pdfListYearSelect')?.addEventListener('change', async event => {
+    appState.pdfYear = Number(event.target.value) || appState.pdfYear;
+    await renderPdfList(appState.pdfYear);
+  });
+  document.getElementById('refreshDocsBtn')?.addEventListener('click', async () => {
+    await renderPdfList(appState.pdfYear);
   });
 }
 

@@ -162,6 +162,98 @@ async function getPolicyById(id) {
 }
 
 /**
+ * Crea un registro de documento PDF para el usuario actual
+ * @param {object} documentData - Datos del documento
+ * @returns {Promise<object>} Documento creado
+ */
+async function createPolicyDocument(documentData) {
+  try {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const dataToInsert = {
+      ...documentData,
+      user_id: userId
+    };
+
+    const { data, error } = await supabaseClient
+      .from('policy_documents')
+      .insert([dataToInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error insertando documento PDF:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+/**
+ * Obtiene los documentos PDF del usuario para un año específico
+ * @param {number} year - Año
+ * @returns {Promise<object[]>} Lista de documentos
+ */
+async function fetchPolicyDocuments(year) {
+  try {
+    let query = supabaseClient
+      .from('policy_documents')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (typeof year === 'number' && !Number.isNaN(year)) {
+      query = query.eq('year', year);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching PDF documents:', error);
+    return [];
+  }
+}
+
+async function deletePolicyDocument(id, storagePath) {
+  if (!id || !storagePath) {
+    throw new Error('ID o ruta de PDF no proporcionada');
+  }
+
+  try {
+    const { error: removeError } = await supabaseClient.storage
+      .from(APP_CONFIG.STORAGE.DOCS)
+      .remove([storagePath]);
+
+    if (removeError) {
+      console.error('Error eliminando archivo del bucket:', removeError);
+      throw removeError;
+    }
+
+    const { error: deleteError } = await supabaseClient
+      .from('policy_documents')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      console.error('Error eliminando registro del documento:', deleteError);
+      throw deleteError;
+    }
+
+    return true;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+}
+
+/**
  * Busca pólizas por término
  * @param {string} searchTerm - Término de búsqueda
  * @returns {Promise<object[]>} Pólizas encontradas
@@ -369,5 +461,8 @@ window.getDashboardMetrics = getDashboardMetrics;
 window.getCompanySummary = getCompanySummary;
 window.getUpcomingRenewals = getUpcomingRenewals;
 window.getTopPolicies = getTopPolicies;
+window.createPolicyDocument = createPolicyDocument;
+window.fetchPolicyDocuments = fetchPolicyDocuments;
+window.deletePolicyDocument = deletePolicyDocument;
 window.validatePolicy = validatePolicy;
 window.normalizePolicy = normalizePolicy;
